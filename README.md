@@ -54,7 +54,7 @@ open http://localhost:8000/docs
 We also provide an AI-driven workflow that uses an LLM to suggest an expectation and executes it:
 
 ```bash
-# Ensure you have OPENAI_API_KEY set
+# Ensure you have OPENAI_API_KEY set:
 export OPENAI_API_KEY="your-key"
 
 # Install OpenAI SDK
