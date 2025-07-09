@@ -13,6 +13,6 @@ logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
 # 1. Create the MCP server instance
-mcp = FastMCP("gx-mcp-server")
+mcp: FastMCP = FastMCP("gx-mcp-server")
 # …
 app = mcp.http_app()

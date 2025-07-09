@@ -20,6 +20,14 @@ setup(
         "requests",
     ],
     extras_require={
-        "dev": ["pytest", "pre-commit", "black", "isort", "mypy", "types-requests"]
+        "dev": [
+            "pytest",
+            "pre-commit",
+            "black",
+            "isort",
+            "mypy",
+            "types-requests",
+            "pandas-stubs",
+        ]
     },
 )

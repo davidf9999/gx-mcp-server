@@ -5,3 +5,5 @@ black
 isort
 mypy
 types-requests
+pandas-stubs
+openai

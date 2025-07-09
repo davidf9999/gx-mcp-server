@@ -10,7 +10,7 @@ from great_expectations.core import ExpectationSuite
 from great_expectations.exceptions import DataContextError
 
 from gx_mcp_server import logger, mcp
-from gx_mcp_server.core import schema, storage
+from gx_mcp_server.core import schema
 
 
 def _create_suite(
@@ -28,16 +28,12 @@ def _create_suite(
     logger.info("Suite '%s' registered in context", suite_name)
 
     if profiler:
-        # Fetch the DataFrame for profiling
-        df = storage.DataStorage.get(dataset_handle)
-        logger.info("Profiling dataset handle=%s", dataset_handle)
-        profiler_obj = gx.profile.UserConfigurableProfiler(
-            profile_dataset=df,
-            suite=suite,
+        # NOTE: Profiler functionality has been deprecated in Great Expectations 1.5+
+        # For now, we'll log a warning and create an empty suite
+        logger.warning(
+            "Profiler functionality is deprecated in Great Expectations 1.5+. "
+            "Creating empty suite instead. Please add expectations manually."
         )
-        suite = profiler_obj.build_suite()
-        context.suites.add_or_update(suite)
-        logger.info("Suite '%s' updated with profiled expectations", suite_name)
 
     return schema.SuiteHandle(suite_name=suite_name)
 
