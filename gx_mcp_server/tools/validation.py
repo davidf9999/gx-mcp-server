@@ -5,8 +5,7 @@ from gx_mcp_server import mcp
 from gx_mcp_server.core import storage, schema
 
 
-@mcp.tool()
-def run_checkpoint(
+def _run_checkpoint(
     suite_name: str,
     dataset_handle: str,
     checkpoint_name: Optional[str] = None,
@@ -31,17 +30,17 @@ def run_checkpoint(
     store_id = storage.ValidationStorage.add(result.to_json_dict())
     return schema.ValidationResult(validation_id=store_id)
 
+run_checkpoint = mcp.tool()(_run_checkpoint)
 
-@mcp.tool()
-def get_validation_result(
+
+def _get_validation_result(
     validation_id: str,
 ) -> schema.ValidationResultDetail:
     """Fetch validation result JSON for a prior run."""
     result = storage.ValidationStorage.get(validation_id)
     data = result if isinstance(result, dict) else result.to_json_dict()
-    return schema.ValidationResultDetail.parse_obj(data)
+    return schema.ValidationResultDetail.model_validate(data)
+
+get_validation_result = mcp.tool()(_get_validation_result)
 
 
-# Expose direct functions for tests
-run_checkpoint = run_checkpoint.fn
-get_validation_result = get_validation_result.fn

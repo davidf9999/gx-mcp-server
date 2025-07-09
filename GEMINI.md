@@ -1,0 +1,1 @@
+This project is a server that exposes Great Expectations functionality through a Model Context Protocol (MCP). It provides tools for working with datasets, expectation suites, and validation checkpoints.

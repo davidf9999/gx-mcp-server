@@ -8,8 +8,7 @@ from gx_mcp_server import mcp
 from gx_mcp_server.core import storage, schema
 
 
-@mcp.tool()
-def load_dataset(
+def _load_dataset(
     source: str,
     source_type: Literal["file", "url", "inline"] = "file",
 ) -> schema.DatasetHandle:
@@ -26,6 +25,6 @@ def load_dataset(
     handle = storage.DataStorage.add(df)
     return schema.DatasetHandle(handle=handle)
 
+load_dataset = mcp.tool()(_load_dataset)
 
-# Expose direct function for tests
-load_dataset = load_dataset.fn
+
