@@ -1,42 +1,45 @@
 # Contributing to gx-mcp-server
 
-Thank you for your interest in improving gx-mcp-server! We welcome all contributions: code, docs, tests, and feedback.
+We welcome all contributions: bug fixes, enhancements, docs, and tests!
 
 ## Getting Started
 
-1. **Fork** the repository and **clone** your fork.
-2. **Install** dependencies in editable mode:
+1. Fork this repository and clone your fork:
+   ```bash
+   git clone https://github.com/your-org/gx-mcp-server.git
+   cd gx-mcp-server
+   ```
+2. Install dependencies:
    ```bash
    pip install -e .[dev]
    ```
-3. **Run tests** and format code:
+3. Run formatting and tests:
    ```bash
-   pytest
    pre-commit run --all-files
+   pytest
    ```
-4. **Start the server** to test manually:
+4. Start the server:
    ```bash
    uvicorn gx_mcp_server.app:app --reload
    ```
 
 ## Reporting Issues
 
-- Check existing [issues](https://github.com/your-org/gx-mcp-server/issues) before opening.
-- Create a clear, concise issue with steps to reproduce or expected behavior.
+- Search existing issues first.
+- Provide steps to reproduce and expected behavior.
 
-## Making Changes
+## Pull Requests
 
-1. Create a **feature branch**: `git checkout -b feature/awesome`.
-2. Make small, focused commits with descriptive messages.
-3. Run tests and formatting locally.
-4. Push and open a **Pull Request** against `main`.
-5. Reference related issues and include screenshots or logs if helpful.
+1. Create a branch: `git checkout -b feature/your-feature`.
+2. Commit changes with clear messages.
+3. Push and open a PR against `main`.
+4. Ensure CI (tests, lint, type checks) passes.
 
-## Code Style
+## Style Guidelines
 
-- **Formatting**: `black .`
-- **Import sorting**: `isort .`
-- **Linting**: `ruff .`
-- **Type checking**: `mypy .`
+- Format: `black .`
+- Sort imports: `isort .`
+- Lint: `ruff .`
+- Type check: `mypy .`
 
-We follow the [Contributor Covenant v2.1](https://www.contributor-covenant.org/) – please be respectful and inclusive.
+Please follow our Code of Conduct: see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).

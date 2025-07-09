@@ -4,3 +4,4 @@ uvicorn[standard]
 pandas
 great_expectations
 requests
+gunicorn
