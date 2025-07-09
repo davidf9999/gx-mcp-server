@@ -28,25 +28,58 @@ open http://localhost:8000/docs
 
 ## Manual Testing
 
-1. **Example script**
+1. **Run the example script**
    ```bash
    python examples/basic_roundtrip.py
    ```
+
    Expected:
    ```
    Loaded dataset handle: 3f2a1e72-...
    Created suite: demo_suite
    Add expectation success: True
-   Validation ID: 7d4c3b91-...
+   Validation ID: cb7f4cfa-...
    Validation summary: { "success": true, ... }
    ```
 
-2. **Use curl**
+2. **Use `curl`** to call tools:
    ```bash
    curl -sS -X POST http://localhost:8000/mcp/run \
      -H "Content-Type: application/json" \
      -d '{"tool":"load_dataset","args":{"source":"x,y\\n1,2","source_type":"inline"}}'
    ```
+
+## AI-Driven Example
+
+We also provide an AI-driven workflow that uses an LLM to suggest an expectation and executes it:
+
+```bash
+# Ensure you have OPENAI_API_KEY set:
+export OPENAI_API_KEY="your-key"
+
+# Install OpenAI SDK
+pip install openai
+
+# Run the AI example
+python examples/ai_expectation_roundtrip.py
+```
+
+Expected output:
+
+```
+Loaded dataset handle: 3f2a1e72-...
+Created suite: ai_suite
+AI proposed expectation: {"expectation_type": "...", "kwargs": {...}}
+Add expectation succeeded: True
+Validation ID: 7d4c3b91-...
+Validation summary: { "success": true, ... }
+```
+
+## Examples
+
+See:
+- [`examples/basic_roundtrip.py`](examples/basic_roundtrip.py)
+- [`examples/ai_expectation_roundtrip.py`](examples/ai_expectation_roundtrip.py)
 
 ## Contributing & License
 
