@@ -1,0 +1,67 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.env/
+.venv/
+env/
+venv/
+ENV/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*,cover
+
+# IDE and editor settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints
+
+# FastAPI/Starlette uploads (if used)
+uploads/
+
+# Data context, temp files
+tmp/
+temp/
+*.csv
+*.parquet
+gx_context/
+
+# Docker
+*.dockerignore
+docker-compose.override.yml
+docker-compose.*.yml
+
+# Logs and database
+*.log
+*.sqlite3
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# MCP server specific
+mcp_charts/           # if persisting charts under /tmp
