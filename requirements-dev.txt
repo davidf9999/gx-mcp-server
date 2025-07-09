@@ -5,3 +5,4 @@ black
 isort
 mypy
 types-requests
+openai
