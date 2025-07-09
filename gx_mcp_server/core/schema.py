@@ -1,5 +1,5 @@
 # gx_mcp_server/core/schema.py
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
@@ -25,3 +25,4 @@ class ValidationResultDetail(BaseModel):
     statistics: Dict[str, Any]
     results: Any
     success: bool
+    error: Optional[str] = None
