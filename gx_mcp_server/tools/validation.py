@@ -1,8 +1,10 @@
 # gx_mcp_server/tools/validation.py
 from typing import Optional
+
 import great_expectations as gx
+
 from gx_mcp_server import mcp
-from gx_mcp_server.core import storage, schema
+from gx_mcp_server.core import schema, storage
 
 
 def _run_checkpoint(
@@ -30,6 +32,7 @@ def _run_checkpoint(
     store_id = storage.ValidationStorage.add(result.to_json_dict())
     return schema.ValidationResult(validation_id=store_id)
 
+
 run_checkpoint = mcp.tool()(_run_checkpoint)
 
 
@@ -41,6 +44,5 @@ def _get_validation_result(
     data = result if isinstance(result, dict) else result.to_json_dict()
     return schema.ValidationResultDetail.model_validate(data)
 
+
 get_validation_result = mcp.tool()(_get_validation_result)
-
-

@@ -1,7 +1,8 @@
 # gx_mcp_server/core/storage.py
 import uuid
 from collections import OrderedDict
-from typing import Dict, Any
+from typing import Any, Dict
+
 import pandas as pd
 
 # in-memory stores

@@ -1,12 +1,18 @@
 # gx_mcp_server/__init__.py
+import logging
+
 from fastmcp import FastMCP
+
+# Configure logger
+logger = logging.getLogger("gx_mcp_server")
+handler = logging.StreamHandler()
+handler.setFormatter(
+    logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
 
 # 1. Create the MCP server instance
 mcp = FastMCP("gx-mcp-server")
-
-# 2. Register tool modules
-from .tools import datasets, expectations, validation  # noqa: E402
-
-# 3. Expose the FastAPI app via http_app (modern API)
-# `sse_app()` is deprecated; `http_app` is the new entrypoint
+# …
 app = mcp.http_app()

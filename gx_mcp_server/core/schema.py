@@ -1,6 +1,7 @@
 # gx_mcp_server/core/schema.py
+from typing import Any, Dict
+
 from pydantic import BaseModel
-from typing import Dict, Any, Optional
 
 
 class DatasetHandle(BaseModel):

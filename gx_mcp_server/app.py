@@ -1,7 +1,12 @@
-"""
-Starlette/FastAPI app entrypoint for uvicorn and pytest.
-Importable as `gx_mcp_server.app:app`.
-"""
-# import the SSE app from package root
+from fastapi import FastAPI
 
-from . import app  # re-export from package root
+from . import app as mcp_app
+from . import logger
+
+app: FastAPI = mcp_app
+
+
+@app.get("/health")
+def health():
+    logger.info("Health check")
+    return {"status": "ok"}
