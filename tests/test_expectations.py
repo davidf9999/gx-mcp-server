@@ -1,9 +1,11 @@
+import os
+
+import great_expectations as gx
+from great_expectations.data_context import FileDataContext
+
 from gx_mcp_server.tools.expectations import \
     _add_expectation as add_expectation
 from gx_mcp_server.tools.expectations import _create_suite as create_suite
-import great_expectations as gx
-from great_expectations.data_context import FileDataContext
-import os
 
 
 def test_suite_and_expectation(tmp_path):

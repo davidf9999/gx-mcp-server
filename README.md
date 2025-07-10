@@ -28,7 +28,12 @@ open http://localhost:8000/docs
 
 ## Manual Testing
 
-1. **Run the example script**
+1. **Start the server**
+   ```bash
+   uvicorn main:app --port 8000 --host 0.0.0.0
+   ```
+
+2. **Run the example script**
    ```bash
    python examples/basic_roundtrip.py
    ```
