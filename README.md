@@ -20,7 +20,7 @@
 pip install -e .[dev]
 
 # 2. Run the server
-uvicorn gx_mcp_server.app:app --reload
+uvicorn main:app --reload
 
 # 3. Explore the API docs
 open http://localhost:8000/docs
