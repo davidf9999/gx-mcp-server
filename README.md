@@ -10,7 +10,7 @@
 - **load_dataset** – load CSV data (file, URL, or inline) into memory  
 - **create_suite** – bootstrap an ExpectationSuite (with optional profiling)  
 - **add_expectation** – append rules to a suite  
-- **run_checkpoint** – execute validations and stream results  
+- **run_checkpoint** – execute validations and store results for later retrieval (no streaming)
 - **get_validation_result** – fetch detailed pass/fail summaries  
 
 ## Quickstart
