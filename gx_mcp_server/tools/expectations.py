@@ -72,5 +72,5 @@ def _add_expectation(
 
 
 def register(mcp_instance):
-    mcp_instance.tool()(_create_suite)
-    mcp_instance.tool()(_add_expectation)
+    mcp_instance.tool(name="create_suite")(_create_suite)
+    mcp_instance.tool(name="add_expectation")(_add_expectation)

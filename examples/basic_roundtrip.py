@@ -3,8 +3,8 @@ import json
 
 from fastmcp import Client
 
-# 1) Start the server: uvicorn gx_mcp_server.app:app --reload
-MCP = Client("http://localhost:8000/mcp")
+# 1) Start the server: uvicorn main:app --reload
+MCP = Client("http://localhost:8000")
 
 
 async def main():

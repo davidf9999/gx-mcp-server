@@ -44,4 +44,4 @@ def _load_dataset(
 
 
 def register(mcp_instance):
-    mcp_instance.tool()(_load_dataset)
+    mcp_instance.tool(name="load_dataset")(_load_dataset)

@@ -1,21 +1,16 @@
-from fastapi import FastAPI
+from starlette.responses import JSONResponse
 
 from gx_mcp_server import logger, mcp
 from gx_mcp_server.tools import register_tools
 
-# Create the main FastAPI app
-app = FastAPI(title="GX MCP Server")
-
-
-# Add a simple health endpoint to the main FastAPI app
-@app.get("/health")
-def health():
-    logger.info("Health check invoked")
-    return {"status": "ok"}
-
-
 # Register tools with the MCP instance
 register_tools(mcp)
 
-# Include the MCP router
-app.mount("/mcp", mcp.http_app())
+# Add a simple health endpoint to the MCP instance
+@mcp.custom_route("/health", methods=["GET"])
+async def health_check(request):
+    logger.debug("Health check invoked")
+    return JSONResponse({"status": "ok"})
+
+# Get the MCP app 
+app = mcp.http_app()

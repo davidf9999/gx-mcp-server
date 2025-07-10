@@ -108,5 +108,5 @@ def _get_validation_result(
 
 
 def register(mcp_instance):
-    mcp_instance.tool()(_run_checkpoint)
-    mcp_instance.tool()(_get_validation_result)
+    mcp_instance.tool(name="run_checkpoint")(_run_checkpoint)
+    mcp_instance.tool(name="get_validation_result")(_get_validation_result)

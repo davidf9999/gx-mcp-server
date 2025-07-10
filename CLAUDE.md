@@ -11,7 +11,7 @@ pip install -e .[dev]
 
 ### Running the Server
 ```bash
-uvicorn gx_mcp_server.app:app --reload
+uvicorn main:app --reload
 ```
 
 ### Testing
