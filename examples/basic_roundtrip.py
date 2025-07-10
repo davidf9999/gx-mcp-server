@@ -33,4 +33,4 @@ print("Validation ID:", val_res.validation_id)
 
 # 6) Fetch results
 detail = MCP.get_validation_result(validation_id=val_res.validation_id)
-print("Validation summary:", json.dumps(detail, indent=2))
+print("Validation summary:", json.dumps(detail.model_dump(), indent=2))
