@@ -4,7 +4,7 @@ from typing import Optional
 import great_expectations as gx
 from great_expectations.exceptions import DataContextError
 
-from gx_mcp_server import logger, mcp
+from gx_mcp_server import logger
 from gx_mcp_server.core import schema, storage
 
 
@@ -75,9 +75,6 @@ def _run_checkpoint(
     return schema.ValidationResult(validation_id=store_id)
 
 
-run_checkpoint = mcp.tool()(_run_checkpoint)
-
-
 def _get_validation_result(
     validation_id: str,
 ) -> schema.ValidationResultDetail:
@@ -110,4 +107,6 @@ def _get_validation_result(
         return schema.ValidationResultDetail.model_validate(error_data)
 
 
-get_validation_result = mcp.tool()(_get_validation_result)
+def register(mcp_instance):
+    mcp_instance.tool()(_run_checkpoint)
+    mcp_instance.tool()(_get_validation_result)

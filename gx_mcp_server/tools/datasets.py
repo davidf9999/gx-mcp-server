@@ -5,7 +5,7 @@ from typing import Literal
 
 import pandas as pd
 
-from gx_mcp_server import logger, mcp
+from gx_mcp_server import logger
 from gx_mcp_server.core import schema, storage
 
 
@@ -43,4 +43,5 @@ def _load_dataset(
     return schema.DatasetHandle(handle=handle)
 
 
-load_dataset = mcp.tool()(_load_dataset)
+def register(mcp_instance):
+    mcp_instance.tool()(_load_dataset)

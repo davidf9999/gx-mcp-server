@@ -9,7 +9,7 @@ import great_expectations as gx
 from great_expectations.core import ExpectationSuite
 from great_expectations.exceptions import DataContextError
 
-from gx_mcp_server import logger, mcp
+from gx_mcp_server import logger
 from gx_mcp_server.core import schema
 
 
@@ -36,10 +36,6 @@ def _create_suite(
         )
 
     return schema.SuiteHandle(suite_name=suite_name)
-
-
-# Register as an MCP tool
-create_suite = mcp.tool()(_create_suite)
 
 
 def _add_expectation(
@@ -75,5 +71,6 @@ def _add_expectation(
     return schema.ToolResponse(success=True, message="Expectation added")
 
 
-# Register as an MCP tool
-add_expectation = mcp.tool()(_add_expectation)
+def register(mcp_instance):
+    mcp_instance.tool()(_create_suite)
+    mcp_instance.tool()(_add_expectation)

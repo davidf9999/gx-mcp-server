@@ -1,8 +1,8 @@
 import pandas as pd
 from fastapi.testclient import TestClient
 
-from gx_mcp_server import app
 from gx_mcp_server.tools.datasets import _load_dataset as load_dataset
+from main import app
 
 client = TestClient(app)
 
