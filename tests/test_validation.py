@@ -1,6 +1,4 @@
-from gx_mcp_server.tools.validation import \
-    _get_validation_result as get_validation_result
-from gx_mcp_server.tools.validation import _run_checkpoint as run_checkpoint
+from gx_mcp_server.tools.validation import get_validation_result, run_checkpoint
 
 
 def test_checkpoint_flow():

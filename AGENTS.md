@@ -1,13 +1,56 @@
 # Instructions for AI agents
 
-This repository hosts the **Great Expectations MCP Server**.
+This repository hosts the **Great Expectations MCP Server** - a modern MCP server that exposes Great Expectations data validation capabilities.
 
-## Workflow
-- Install dependencies with `pip install -e .[dev]` if not already installed.
-- Before committing any changes, run:
-  ```bash
-  pre-commit run --all-files
-  pytest
-  ```
-- Add tests for new features or bug fixes.
-- Follow the style guidelines in [CONTRIBUTING.md](CONTRIBUTING.md).
+## Architecture
+
+**Modern MCP Server** (post-refactor):
+- Pure MCP server using FastMCP framework (no FastAPI dependency)
+- UV package manager with pyproject.toml
+- Multiple transport modes: STDIO, HTTP, Inspector
+- CLI interface: `uv run python -m gx_mcp_server`
+
+## Development Workflow
+
+### Setup
+```bash
+# Install dependencies
+uv sync
+```
+
+### Testing
+```bash
+# Run all tests
+uv run pytest
+
+# Test MCP server
+uv run python -m gx_mcp_server --http  # Terminal 1
+uv run python examples/basic_roundtrip.py  # Terminal 2
+```
+
+### Code Quality
+```bash
+# Before committing
+uv run pre-commit run --all-files
+uv run pytest
+```
+
+### Server Commands
+```bash
+# STDIO mode (for AI clients)
+uv run python -m gx_mcp_server
+
+# HTTP mode (for testing)
+uv run python -m gx_mcp_server --http
+
+# Inspector mode (development)
+uv run python -m gx_mcp_server --inspect
+```
+
+## Key Files
+
+- `gx_mcp_server/__main__.py` - CLI entry point
+- `gx_mcp_server/server.py` - Server factory  
+- `gx_mcp_server/tools/` - MCP tool implementations
+- `examples/basic_roundtrip.py` - Working example
+- `pyproject.toml` - UV package configuration

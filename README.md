@@ -16,26 +16,45 @@
 ## Quickstart
 
 ```bash
-# 1. Install in editable mode
-pip install -e .[dev]
+# 1. Install dependencies
+uv sync
 
 # 2. Run the server
-uvicorn main:app --reload
+uv run python -m gx_mcp_server --http
 
-# 3. Explore the API docs
-open http://localhost:8000/docs
+# 3. Test with example
+uv run python examples/basic_roundtrip.py
 ```
+
+## MCP Server Modes
+
+The server supports multiple transport modes:
+
+- **STDIO mode** (default): For AI clients like Claude Desktop
+  ```bash
+  uv run python -m gx_mcp_server
+  ```
+
+- **HTTP mode**: For web clients and testing
+  ```bash
+  uv run python -m gx_mcp_server --http
+  ```
+
+- **Inspector mode**: Development/debugging with MCP Inspector
+  ```bash
+  uv run python -m gx_mcp_server --inspect
+  ```
 
 ## Manual Testing
 
 1. **Start the server**
    ```bash
-   uvicorn main:app --port 8000 --host 0.0.0.0
+   uv run python -m gx_mcp_server --http
    ```
 
 2. **Run the example script**
    ```bash
-   python examples/basic_roundtrip.py
+   uv run python examples/basic_roundtrip.py
    ```
 
    Expected:
@@ -47,44 +66,37 @@ open http://localhost:8000/docs
    Validation summary: { "success": true, ... }
    ```
 
-2. **Use `curl`** to call tools:
+3. **Use MCP Inspector** for visual testing:
    ```bash
-   curl -sS -X POST http://localhost:8000/mcp/run \
-     -H "Content-Type: application/json" \
-     -d '{"tool":"load_dataset","args":{"source":"x,y\\n1,2","source_type":"inline"}}'
+   # Terminal 1: Start server
+   uv run python -m gx_mcp_server --http
+   
+   # Terminal 2: Run inspector
+   npx @modelcontextprotocol/inspector
+   # Connect to: http://localhost:8000/mcp/
    ```
 
-## AI-Driven Example
+4. **Run tests**:
+   ```bash
+   uv run pytest
+   ```
 
-We also provide an AI-driven workflow that uses an LLM to suggest an expectation and executes it:
+## Architecture
 
-```bash
-# Ensure you have OPENAI_API_KEY set:
-export OPENAI_API_KEY="your-key"
+This is a modern **MCP server** built with:
 
-# Install OpenAI SDK
-pip install openai
+- **FastMCP**: Modern MCP server framework
+- **Great Expectations**: Data validation library  
+- **UV**: Fast Python package manager
+- **Multiple transports**: STDIO, HTTP, Inspector modes
 
-# Run the AI example
-python examples/ai_expectation_roundtrip.py
-```
-
-Expected output:
-
-```
-Loaded dataset handle: 3f2a1e72-...
-Created suite: ai_suite
-AI proposed expectation: {"expectation_type": "...", "kwargs": {...}}
-Add expectation succeeded: True
-Validation ID: 7d4c3b91-...
-Validation summary: { "success": true, ... }
-```
+The server exposes Great Expectations functionality as MCP tools, allowing AI agents to perform data validation tasks through the standardized Model Context Protocol.
 
 ## Examples
 
 See:
-- [`examples/basic_roundtrip.py`](examples/basic_roundtrip.py)
-- [`examples/ai_expectation_roundtrip.py`](examples/ai_expectation_roundtrip.py)
+- [`examples/basic_roundtrip.py`](examples/basic_roundtrip.py) - Complete MCP workflow demo
+- [`examples/test_mcp_direct.py`](examples/test_mcp_direct.py) - Direct server execution
 
 ## Contributing & License
 
