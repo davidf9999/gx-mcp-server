@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Literal
 
 import pandas as pd
 
-from gx_mcp_server import logger
+from gx_mcp_server.logging import logger
 from gx_mcp_server.core import schema, storage
 
 if TYPE_CHECKING:

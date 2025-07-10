@@ -89,7 +89,7 @@ async def run_stdio() -> None:
     mcp = create_server()
     
     # Run the server in STDIO mode
-    await mcp.run_stdio()
+    await mcp.run_stdio_async()
 
 
 async def run_http(host: str, port: int) -> None:
@@ -100,7 +100,7 @@ async def run_http(host: str, port: int) -> None:
     mcp = create_server()
     
     # Run the server in HTTP mode
-    await mcp.run_http(host=host, port=port)
+    await mcp.run_http_async(host=host, port=port)
 
 
 def run_inspector(host: str, port: int) -> None:
@@ -108,10 +108,15 @@ def run_inspector(host: str, port: int) -> None:
     from gx_mcp_server import logger
     
     logger.info(f"Starting GX MCP Server with Inspector on {host}:{port}")
-    mcp = create_server()
+    logger.info("The MCP Inspector should be run as a separate tool.")
+    logger.info("To use the MCP Inspector with this server:")
+    logger.info("1. Start this server in HTTP mode: python -m gx_mcp_server --http")
+    logger.info("2. In another terminal, run: npx @modelcontextprotocol/inspector")
+    logger.info("3. Connect the inspector to http://localhost:8000")
     
-    # Run with MCP Inspector (synchronous)
-    mcp.run_inspector(host=host, port=port)
+    # For now, run the server in HTTP mode as a fallback
+    mcp = create_server()
+    asyncio.run(mcp.run_http_async(host=host, port=port))
 
 
 def main() -> None:

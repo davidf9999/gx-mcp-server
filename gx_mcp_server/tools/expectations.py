@@ -9,7 +9,7 @@ import great_expectations as gx
 from great_expectations.core import ExpectationSuite
 from great_expectations.exceptions import DataContextError
 
-from gx_mcp_server import logger
+from gx_mcp_server.logging import logger
 from gx_mcp_server.core import schema
 
 if TYPE_CHECKING:

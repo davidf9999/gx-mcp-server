@@ -1,18 +1,5 @@
 # gx_mcp_server/__init__.py
-import logging
-
+from gx_mcp_server.logging import logger
 from gx_mcp_server.server import create_server
-
-# Configure logger
-logger = logging.getLogger("gx_mcp_server")
-
-# Avoid adding multiple handlers when the module is imported repeatedly
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    handler.setFormatter(
-        logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-    )
-    logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
 
 __all__ = ["logger", "create_server"]

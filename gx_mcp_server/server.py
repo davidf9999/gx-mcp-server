@@ -7,7 +7,7 @@ Great Expectations tools registered.
 
 from fastmcp import FastMCP
 
-from gx_mcp_server import logger
+from gx_mcp_server.logging import logger
 
 
 def create_server() -> FastMCP:
