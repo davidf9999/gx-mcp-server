@@ -1,4 +1,4 @@
-# Great-Expectations MCP Server
+# Great Expectations MCP Server
 
 > Expose Great Expectations data-quality checks as MCP tools for LLM agents.
 
