@@ -4,7 +4,7 @@ import json
 from fastmcp import Client
 
 # 1) Start the server: uvicorn main:app --reload
-MCP = Client("http://localhost:8000")
+MCP = Client("http://localhost:8000/mcp")
 
 
 async def main():
