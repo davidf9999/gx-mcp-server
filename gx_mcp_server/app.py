@@ -7,8 +7,8 @@ from . import app as mcp_app
 # Create a proper FastAPI instance
 app = FastAPI(title="GX MCP Server")
 
-# Mount the MCP HTTP app at the root
-app.mount("/", mcp_app)
+# Include the MCP app's router so its endpoints show up in the docs
+app.include_router(mcp_app.router, prefix="/mcp")
 
 
 # Add a simple health endpoint
