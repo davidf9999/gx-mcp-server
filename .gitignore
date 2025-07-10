@@ -11,6 +11,10 @@ env/
 venv/
 ENV/
 
+# UV package manager
+uv.lock
+.uv-cache/
+
 # Distribution / packaging
 build/
 dist/

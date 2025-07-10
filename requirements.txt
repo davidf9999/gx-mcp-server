@@ -1,7 +1,0 @@
-fastmcp>=2.8
-fastapi
-uvicorn[standard]
-pandas
-great_expectations
-requests
-gunicorn

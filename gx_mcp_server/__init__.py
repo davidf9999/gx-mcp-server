@@ -1,9 +1,7 @@
 # gx_mcp_server/__init__.py
 import logging
 
-from fastmcp import FastMCP
-# from starlette.requests import Request
-# from starlette.responses import JSONResponse, Response
+from gx_mcp_server.server import create_server
 
 # Configure logger
 logger = logging.getLogger("gx_mcp_server")
@@ -17,8 +15,4 @@ if not logger.handlers:
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)
 
-# Create the MCP server instance
-mcp: FastMCP = FastMCP("gx-mcp-server")
-
-
-
+__all__ = ["logger", "create_server"]

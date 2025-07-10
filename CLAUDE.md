@@ -6,39 +6,69 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Installation and Setup
 ```bash
-pip install -e .[dev]
+# Install uv package manager (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install project with dependencies
+uv sync
+
+# Install pre-commit hooks
+uv run pre-commit install
 ```
 
 ### Running the Server
 ```bash
-uvicorn main:app --reload
+# STDIO mode (for AI clients like Claude Desktop)
+uv run python -m gx_mcp_server
+
+# HTTP mode (for web-based clients)  
+uv run python -m gx_mcp_server --http
+
+# Development mode with MCP Inspector (testing UI)
+uv run python -m gx_mcp_server --inspect
 ```
 
 ### Testing
 ```bash
-pytest                    # Run all tests
-pytest tests/test_datasets.py     # Run specific test file
-pytest tests/test_expectations.py
-pytest tests/test_validation.py
+uv run pytest                         # Run all tests
+uv run pytest tests/test_datasets.py  # Run specific test file
+uv run pytest tests/test_expectations.py
+uv run pytest tests/test_validation.py
 ```
 
 ### Code Quality
 ```bash
-black .           # Format code
-isort .           # Sort imports
-pre-commit run --all-files  # Run pre-commit hooks
+uv run black .                     # Format code
+uv run isort .                     # Sort imports  
+uv run mypy gx_mcp_server         # Type checking
+uv run pre-commit run --all-files  # Run pre-commit hooks
+```
+
+### Development Workflow
+```bash
+# Add new dependency
+uv add package-name
+
+# Add development dependency  
+uv add --dev package-name
+
+# Update dependencies
+uv sync --upgrade
+
+# Run commands in the virtual environment
+uv run python script.py
 ```
 
 ## Architecture Overview
 
-This is a **Great Expectations MCP Server** that exposes Great Expectations functionality through the Model Context Protocol (MCP). The server provides data validation capabilities via FastMCP tools.
+This is a **Great Expectations MCP Server** that exposes Great Expectations functionality through the Model Context Protocol (MCP). The server provides data validation capabilities as MCP tools for LLM agents.
 
 ### Core Components
 
-**FastMCP Integration** (`gx_mcp_server/__init__.py`):
+**MCP Server** (`gx_mcp_server/__init__.py` & `gx_mcp_server/server.py`):
 - Main MCP server instance using FastMCP framework
-- Registers tool modules and exposes HTTP app
-- Entry point: `mcp.http_app()` (modern API, replaces deprecated `sse_app()`)
+- Supports both STDIO and HTTP transports
+- Client-agnostic design works with any MCP-compatible LLM agent
 
 **Storage Layer** (`gx_mcp_server/core/storage.py`):
 - In-memory stores for DataFrames and validation results
@@ -69,16 +99,17 @@ This is a **Great Expectations MCP Server** that exposes Great Expectations func
 
 ### Key Design Patterns
 
+- **Client Agnostic**: Works with any MCP-compatible LLM agent (Claude, custom agents, etc.)
+- **Dual Transport**: Supports both STDIO (desktop AI apps) and HTTP (web agents)
 - **Handle-based Operations**: All operations use string handles to reference datasets and results
 - **In-memory Storage**: Temporary storage for datasets and validation results during session
 - **Great Expectations Integration**: Direct integration with GE context, suites, and checkpoints
 - **Error Handling**: Graceful handling of missing datasets with dummy results
-- **MCP Tool Decoration**: All exposed functions use `@mcp.tool()` decorator
+- **Standard MCP Patterns**: Uses `@mcp.tool()` decorators following FastMCP best practices
 
 ### Dependencies
 
-- **FastMCP**: MCP server framework
+- **FastMCP**: MCP server framework (part of official MCP Python SDK)
 - **Great Expectations**: Core data validation library
-- **FastAPI/Uvicorn**: Web server infrastructure
 - **Pandas**: Data manipulation and CSV handling
-- **Pydantic**: Data validation and schema definition
+- **UV**: Modern Python package manager for fast dependency resolution

@@ -4,7 +4,7 @@ from fastmcp import FastMCP
 from . import datasets, expectations, validation
 
 
-def register_tools(mcp_instance: FastMCP):
+def register_tools(mcp_instance: FastMCP) -> None:
     from gx_mcp_server import logger
     logger.debug("Registering tools with MCP instance")
     datasets.register(mcp_instance)

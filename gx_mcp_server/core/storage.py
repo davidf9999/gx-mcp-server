@@ -30,11 +30,11 @@ class DataStorage:
 
 class ValidationStorage:
     @staticmethod
-    def add(result) -> str:
+    def add(result: Any) -> str:
         vid = str(uuid.uuid4())
         _result_store[vid] = result
         return vid
 
     @staticmethod
-    def get(vid: str):
+    def get(vid: str) -> Any:
         return _result_store[vid]
