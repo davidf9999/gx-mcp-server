@@ -97,8 +97,8 @@ The server exposes Great Expectations functionality as MCP tools, allowing AI ag
 ## Examples
 
 See:
-- [`examples/basic_roundtrip.py`](examples/basic_roundtrip.py) - Complete MCP workflow demo
-- [`examples/test_mcp_direct.py`](examples/test_mcp_direct.py) - Direct server execution
+- [`examples/basic_rount_trip.py`](examples/basic_rount_trip.py) - Basic round trip demo
+- [`examples/ai_expectation_roundtrip.py`](examples/ai_expectation_roundtrip.py) - Complete MCP workflow demo with AI agent
 
 ## Contributing & License
 
