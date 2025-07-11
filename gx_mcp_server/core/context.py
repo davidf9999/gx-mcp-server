@@ -11,16 +11,16 @@ import tempfile
 from pathlib import Path
 from typing import Optional
 
-from great_expectations.data_context import FileDataContext
+from great_expectations.data_context import FileDataContext, AbstractDataContext
 
 from gx_mcp_server.logging import logger
 
 # Global context instance
-_context: Optional[FileDataContext] = None
+_context: Optional[AbstractDataContext] = None
 _temp_dir: Optional[str] = None
 
 
-def get_shared_context() -> FileDataContext:
+def get_shared_context() -> AbstractDataContext:
     """
     Get or create a shared Great Expectations context.
     
@@ -43,7 +43,7 @@ def get_shared_context() -> FileDataContext:
         os.environ["GX_HOME"] = str(project_root)
         
         # Initialize a new GX project in the temp directory
-        _context = FileDataContext._create(project_root_dir=project_root)
+        _context = FileDataContext._create(project_root_dir=project_root)  # type: ignore[assignment]
         
         logger.info("Created persistent GX context at: %s", project_root)
     

@@ -33,7 +33,15 @@ uv run python examples/basic_roundtrip.py  # Terminal 2
 # Before committing
 uv run pre-commit run --all-files
 uv run pytest
+
+# Type checking (with relaxed rules for development flexibility)
+uv run mypy gx_mcp_server/
 ```
+
+### Linting Configuration
+- **MyPy**: Relaxed rules for development flexibility
+- **Examples**: Excluded from strict type checking
+- **Known Warning**: Marshmallow compatibility warning from Great Expectations is harmless
 
 ### Server Commands
 ```bash

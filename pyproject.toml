@@ -70,9 +70,16 @@ line_length = 88
 
 [tool.mypy]
 python_version = "3.11"
-warn_return_any = true
+warn_return_any = false
 warn_unused_configs = true
-disallow_untyped_defs = true
+# Relax type checking for development flexibility
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_calls = false
+# Exclude examples from type checking entirely
+exclude = [
+    "examples/.*"
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

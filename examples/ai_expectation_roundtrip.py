@@ -24,14 +24,14 @@ async def main() -> None:
         df = pd.DataFrame({"age": [25, 32, 47, 51], "salary": [50000, 64000, 120000, 95000]})
         csv = df.to_csv(index=False)
         load_res = await MCP.call_tool("load_dataset", {"source": csv, "source_type": "inline"})
-        dataset_handle = load_res.structured_content["handle"]
+        dataset_handle = load_res.structured_content["handle"] if load_res.structured_content else ""
         print("Loaded dataset handle:", dataset_handle)
 
         # ── 2) Create an expectation suite ─────────────────────────────────────────────
         suite_res = await MCP.call_tool(
             "create_suite", {"suite_name": "ai_suite", "dataset_handle": dataset_handle, "profiler": False}
         )
-        suite_name = suite_res.structured_content["suite_name"]
+        suite_name = suite_res.structured_content["suite_name"] if suite_res.structured_content else "ai_suite"
         print("Created suite:", suite_name)
 
         # ── 3) Ask the AI for an expectation ───────────────────────────────────────────
@@ -51,7 +51,11 @@ with keys "expectation_type" and "kwargs".  For example:
             )
             # The model should answer e.g.:
             # {"expectation_type":"expect_column_values_to_be_between","kwargs":{"column":"age","min_value":0,"max_value":120}}
-            tool_args = json.loads(resp.choices[0].message.content)
+            content = resp.choices[0].message.content
+            if content:
+                tool_args = json.loads(content)
+            else:
+                raise ValueError("No content in OpenAI response")
             print("AI proposed expectation:", tool_args)
         except Exception as e:
             print(f"AI request failed: {e}")
@@ -71,13 +75,13 @@ with keys "expectation_type" and "kwargs".  For example:
                 "kwargs": tool_args["kwargs"],
             }
         )
-        print("Add expectation succeeded:", add_res.structured_content["success"])
+        print("Add expectation succeeded:", add_res.structured_content["success"] if add_res.structured_content else False)
 
         # ── 5) Run validation and fetch results ────────────────────────────────────────
         val_res = await MCP.call_tool(
             "run_checkpoint", {"suite_name": suite_name, "dataset_handle": dataset_handle}
         )
-        validation_id = val_res.structured_content["validation_id"]
+        validation_id = val_res.structured_content["validation_id"] if val_res.structured_content else ""
         print("Validation ID:", validation_id)
         
         detail = await MCP.call_tool("get_validation_result", {"validation_id": validation_id})

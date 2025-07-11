@@ -20,7 +20,7 @@ def create_server() -> FastMCP:
     logger.debug("Creating GX MCP server instance")
     
     # Create the MCP server
-    mcp = FastMCP("gx-mcp-server")
+    mcp: FastMCP = FastMCP("gx-mcp-server")
     
     # Register all tools
     from gx_mcp_server.tools import register_tools
