@@ -80,6 +80,8 @@ The server supports multiple transport modes:
    ```bash
    uv run pytest
    ```
+   
+   Note: You may see a harmless warning about Marshmallow `Number` field from Great Expectations - this is a known compatibility notice and doesn't affect functionality.
 
 ## Architecture
 
