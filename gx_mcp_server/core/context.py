@@ -11,13 +11,15 @@ import tempfile
 from pathlib import Path
 from typing import Optional
 
-from great_expectations.data_context import FileDataContext, AbstractDataContext
+from great_expectations.data_context import AbstractDataContext
 
 from gx_mcp_server.logging import logger
 
+import great_expectations as gx
+
 # Global context instance
 _context: Optional[AbstractDataContext] = None
-_temp_dir: Optional[str] = None
+_temp_dir: Optional[tempfile.TemporaryDirectory] = None
 
 
 def get_shared_context() -> AbstractDataContext:
@@ -35,15 +37,12 @@ def get_shared_context() -> AbstractDataContext:
     if _context is None:
         logger.debug("Creating new shared Great Expectations context")
         
-        # Create a temporary directory for the GX project
-        _temp_dir = tempfile.mkdtemp(prefix="gx_mcp_")
-        project_root = Path(_temp_dir)
-        
-        # Set GX_HOME environment variable to point to our temp directory
-        os.environ["GX_HOME"] = str(project_root)
+        # Create a temporary directory that will be cleaned up automatically
+        _temp_dir = tempfile.TemporaryDirectory(prefix="gx_mcp_")
+        project_root = Path(_temp_dir.name)
         
         # Initialize a new GX project in the temp directory
-        _context = FileDataContext._create(project_root_dir=project_root)  # type: ignore[assignment]
+        _context = gx.get_context(project_root_dir=project_root)
         
         logger.info("Created persistent GX context at: %s", project_root)
     

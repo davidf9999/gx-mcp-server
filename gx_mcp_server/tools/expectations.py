@@ -11,7 +11,7 @@ from great_expectations.exceptions import DataContextError
 
 from gx_mcp_server.logging import logger
 from gx_mcp_server.core import schema
-# from gx_mcp_server.core.context import get_shared_context
+from gx_mcp_server.core.context import get_shared_context
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -37,11 +37,11 @@ def create_suite(
         Create empty suites and add expectations manually using add_expectation.
     """
     logger.info("Creating suite '%s' (profiler=%s)", suite_name, profiler)
-    context = gx.get_context()
+    context = get_shared_context()
 
     # Initialize an empty suite
     suite = ExpectationSuite(suite_name)
-    context.suites.add_or_update(suite)
+    context.suites.add(suite)
     logger.info("Suite '%s' registered in context", suite_name)
 
     if profiler:
@@ -81,13 +81,12 @@ def add_expectation(
         suite_name,
         kwargs,
     )
-    context = gx.get_context()
+    context = get_shared_context()
     try:
-        suite = context.suites.get(suite_name)
+        suite = context.suites.get(name=suite_name)
     except DataContextError:
-        logger.warning("Suite '%s' not found, creating new one", suite_name)
+        logger.info("Suite '%s' not found, creating a new one.", suite_name)
         suite = ExpectationSuite(suite_name)
-        context.suites.add_or_update(suite)
 
     # Instantiate the expectation and add it
     impl = gx.expectations.registry.get_expectation_impl(expectation_type)

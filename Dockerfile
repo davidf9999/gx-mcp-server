@@ -1,7 +1,8 @@
 FROM python:3.11-slim
 WORKDIR /app
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml uv.lock* ./
+RUN pip install uv
+RUN uv sync --system
 COPY . .
 EXPOSE 8000
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "gx_mcp_server.app:app"]
+CMD ["uv", "run", "python", "-m", "gx_mcp_server", "--http"]

@@ -38,8 +38,8 @@ uv run pytest tests/test_validation.py
 
 ### Code Quality
 ```bash
-uv run black .                     # Format code
-uv run isort .                     # Sort imports  
+uv run ruff format .              # Format code and sort imports
+uv run ruff check . --fix          # Lint and fix issues
 uv run mypy gx_mcp_server         # Type checking
 uv run pre-commit run --all-files  # Run pre-commit hooks
 ```

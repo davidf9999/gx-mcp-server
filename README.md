@@ -3,7 +3,7 @@
 > Expose Great Expectations data-quality checks as MCP tools for LLM agents.
 
 [![PyPI version](https://img.shields.io/pypi/v/gx-mcp-server)](https://pypi.org/project/gx-mcp-server)
-[![License](https://img.shields.io/github/license/your-org/gx-mcp-server)](LICENSE)
+[![License](https://img.shields.io/github/license/davidf9999/gx-mcp-server)](LICENSE)
 
 ## Features
 
@@ -18,6 +18,7 @@
 ```bash
 # 1. Install dependencies
 uv sync
+uv pip install -e .
 
 # 2. Run the server
 uv run python -m gx_mcp_server --http
@@ -97,7 +98,7 @@ The server exposes Great Expectations functionality as MCP tools, allowing AI ag
 ## Examples
 
 See:
-- [`examples/basic_rount_trip.py`](examples/basic_rount_trip.py) - Basic round trip demo
+- [`examples/basic_roundtrip.py`](examples/basic_roundtrip.py) - Basic round trip demo
 - [`examples/ai_expectation_roundtrip.py`](examples/ai_expectation_roundtrip.py) - Complete MCP workflow demo with AI agent
 
 ## Contributing & License

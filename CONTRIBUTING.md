@@ -6,21 +6,22 @@ We welcome all contributions: bug fixes, enhancements, docs, and tests!
 
 1. Fork this repository and clone your fork:
    ```bash
-   git clone https://github.com/your-org/gx-mcp-server.git
+   git clone https://github.com/davidf9999/gx-mcp-server.git
    cd gx-mcp-server
    ```
 2. Install dependencies:
    ```bash
-   pip install -e .[dev]
+   uv sync
+   uv pip install -e .
    ```
 3. Run formatting and tests:
    ```bash
-   pre-commit run --all-files
-   pytest
+   uv run pre-commit run --all-files
+   uv run pytest
    ```
 4. Start the server:
    ```bash
-   uvicorn gx_mcp_server.app:app --reload
+   uv run python -m gx_mcp_server --http
    ```
 
 ## Reporting Issues
@@ -37,9 +38,7 @@ We welcome all contributions: bug fixes, enhancements, docs, and tests!
 
 ## Style Guidelines
 
-- Format: `black .`
-- Sort imports: `isort .`
-- Lint: `ruff .`
-- Type check: `mypy .`
+- Format and lint: `uv run ruff format . && uv run ruff check . --fix`
+- Type check: `uv run mypy gx_mcp_server/`
 
 Please follow our Code of Conduct: see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).

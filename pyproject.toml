@@ -9,7 +9,7 @@ description = "Expose Great Expectations data-quality checks via MCP"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
-    { name = "Your Name", email = "your.email@example.com" }
+    { name = "David Front", email = "dfront@gmail.com" }
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -31,8 +31,7 @@ dev = [
     "pytest",
     "pytest-asyncio", 
     "pre-commit",
-    "black",
-    "isort",
+    "ruff",
     "mypy",
     "types-requests",
     "pandas-stubs",
@@ -43,22 +42,9 @@ dev = [
 gx-mcp-server = "gx_mcp_server.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/gx-mcp-server"
-Repository = "https://github.com/yourusername/gx-mcp-server"
-Issues = "https://github.com/yourusername/gx-mcp-server/issues"
-
-[tool.uv]
-dev-dependencies = [
-    "pytest",
-    "pytest-asyncio",
-    "pre-commit", 
-    "black",
-    "isort",
-    "mypy",
-    "types-requests",
-    "pandas-stubs",
-    "openai",
-]
+Homepage = "https://github.com/dfront/gx-mcp-server"
+Repository = "https://github.com/dfront/gx-mcp-server"
+Issues = "https://github.com/dfront/gx-mcp-server/issues"
 
 [tool.black]
 line-length = 88
@@ -88,3 +74,8 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
 asyncio_mode = "auto"
+filterwarnings = [
+    # Suppress harmless warnings from Great Expectations
+    "ignore::marshmallow.warnings.ChangedInMarshmallow4Warning",
+    "ignore:.*Number.*field should not be instantiated.*",
+]

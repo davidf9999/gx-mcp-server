@@ -1,12 +1,11 @@
 # gx_mcp_server/tools/validation.py
 from typing import TYPE_CHECKING, Optional, cast
 
-import great_expectations as gx
 from great_expectations.exceptions import DataContextError
 
 from gx_mcp_server.logging import logger
 from gx_mcp_server.core import schema, storage
-# from gx_mcp_server.core.context import get_shared_context
+from gx_mcp_server.core.context import get_shared_context
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -50,7 +49,7 @@ def run_checkpoint(
         return schema.ValidationResult(validation_id=vid)
 
     try:
-        context = gx.get_context()
+        context = get_shared_context()
         suite = context.suites.get(suite_name)
         logger.info(
             "Retrieved suite '%s' with %d expectations",
