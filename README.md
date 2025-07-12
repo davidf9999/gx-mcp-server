@@ -20,6 +20,10 @@
 uv sync
 uv pip install -e .
 
+# For development
+uv pip install -e .[dev]
+
+
 # 2. Run the server
 uv run python -m gx_mcp_server --http
 
