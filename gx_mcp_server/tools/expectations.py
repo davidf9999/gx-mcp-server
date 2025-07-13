@@ -2,7 +2,7 @@
 """
 MCP tools for managing Great Expectations suites and expectations.
 """
-
+import threading
 from typing import TYPE_CHECKING, Any, Dict
 
 import great_expectations as gx
@@ -15,6 +15,8 @@ from gx_mcp_server.core.context import get_shared_context
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
+
+_lock = threading.Lock()
 
 
 def create_suite(
@@ -39,9 +41,10 @@ def create_suite(
     logger.info("Creating suite '%s' (profiler=%s)", suite_name, profiler)
     context = get_shared_context()
 
-    # Initialize an empty suite
-    suite = ExpectationSuite(suite_name)
-    context.suites.add(suite)
+    with _lock:
+        # Initialize an empty suite
+        suite = ExpectationSuite(suite_name)
+        context.suites.add(suite)
     logger.info("Suite '%s' registered in context", suite_name)
 
     if profiler:
@@ -82,17 +85,18 @@ def add_expectation(
         kwargs,
     )
     context = get_shared_context()
-    try:
-        suite = context.suites.get(name=suite_name)
-    except DataContextError:
-        logger.info("Suite '%s' not found, creating a new one.", suite_name)
-        suite = ExpectationSuite(suite_name)
+    with _lock:
+        try:
+            suite = context.suites.get(name=suite_name)
+        except DataContextError:
+            logger.info("Suite '%s' not found, creating a new one.", suite_name)
+            suite = ExpectationSuite(suite_name)
 
-    # Instantiate the expectation and add it
-    impl = gx.expectations.registry.get_expectation_impl(expectation_type)
-    expectation = impl(**kwargs)
-    suite.add_expectation(expectation)
-    context.suites.add_or_update(suite)
+        # Instantiate the expectation and add it
+        impl = gx.expectations.registry.get_expectation_impl(expectation_type)
+        expectation = impl(**kwargs)
+        suite.add_expectation(expectation)
+        context.suites.add_or_update(suite)
     logger.info(
         "Expectation '%s' added to suite '%s'",
         expectation_type,

@@ -8,6 +8,7 @@ across all MCP tool calls, ensuring suites and expectations remain available.
 
 import os
 import tempfile
+import threading
 from pathlib import Path
 from typing import Optional
 
@@ -20,6 +21,7 @@ import great_expectations as gx
 # Global context instance
 _context: Optional[AbstractDataContext] = None
 _temp_dir: Optional[tempfile.TemporaryDirectory] = None
+_lock = threading.Lock()
 
 
 def get_shared_context() -> AbstractDataContext:
@@ -34,17 +36,18 @@ def get_shared_context() -> AbstractDataContext:
     """
     global _context, _temp_dir
     
-    if _context is None:
-        logger.debug("Creating new shared Great Expectations context")
-        
-        # Create a temporary directory that will be cleaned up automatically
-        _temp_dir = tempfile.TemporaryDirectory(prefix="gx_mcp_")
-        project_root = Path(_temp_dir.name)
-        
-        # Initialize a new GX project in the temp directory
-        _context = gx.get_context(project_root_dir=project_root)
-        
-        logger.info("Created persistent GX context at: %s", project_root)
+    with _lock:
+        if _context is None:
+            logger.debug("Creating new shared Great Expectations context")
+            
+            # Create a temporary directory that will be cleaned up automatically
+            _temp_dir = tempfile.TemporaryDirectory(prefix="gx_mcp_")
+            project_root = Path(_temp_dir.name)
+            
+            # Initialize a new GX project in the temp directory
+            _context = gx.get_context(project_root_dir=project_root)
+            
+            logger.info("Created persistent GX context at: %s", project_root)
     
     return _context
 
