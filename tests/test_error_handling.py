@@ -15,7 +15,10 @@ def test_load_malformed_csv():
     df = DataStorage.get(res.handle)
     # Pandas should parse this into a two-row dataframe, with the second row having a NaN value
     assert len(df) == 2
-    assert df.iloc[1][1] is pd.NA
+    # Pandas represents missing values in CSVs as NaN (float) rather than
+    # ``pd.NA``. Use ``pd.isna`` to cover both cases to avoid strict identity
+    # checks failing when a float NaN is returned.
+    assert pd.isna(df.iloc[1][1])
 
 def test_get_non_existent_validation_result():
     """Test fetching a validation result with a non-existent ID."""
