@@ -91,12 +91,15 @@ The server supports multiple transport modes:
 
 ## Docker
 
-You can also build and test the project entirely within a Docker container. The provided `Dockerfile` installs the dependencies with `uv` and exposes the server on port `8000`.
+You can also build and test the project entirely within a Docker container. The repository includes a `.dockerignore` so your local `.venv` isn't copied during the build. The provided `Dockerfile` installs the dependencies using `uv` and lets you optionally include development tools for testing. Pass `--build-arg WITH_DEV=true` to install the `[dev]` extras. The server is exposed on port `8000`.
 
 Build the image:
 
 ```bash
 docker build -t gx-mcp-server .
+
+# Or include development tools for testing
+docker build --build-arg WITH_DEV=true -t gx-mcp-server .
 ```
 
 Run the server:
