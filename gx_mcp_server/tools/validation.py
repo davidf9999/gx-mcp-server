@@ -136,22 +136,20 @@ def get_validation_result(
     except KeyError:
         logger.error("Validation result not found for ID: %s", validation_id)
         # Return a default error result
-        error_data = {
-            "statistics": {},
-            "results": [],
-            "success": False,
-            "error": f"Validation result not found for ID: {validation_id}",
-        }
-        return schema.ValidationResultDetail.model_validate(error_data)
+        return schema.ValidationResultDetail(
+            statistics={},
+            results=[],
+            success=False,
+            error=f"Validation result not found for ID: {validation_id}",
+        )
     except Exception as e:
         logger.error("Error retrieving validation result: %s", str(e))
-        error_data = {
-            "statistics": {},
-            "results": [],
-            "success": False,
-            "error": f"Failed to retrieve validation result: {str(e)}",
-        }
-        return schema.ValidationResultDetail.model_validate(error_data)
+        return schema.ValidationResultDetail(
+            statistics={},
+            results=[],
+            success=False,
+            error=f"Failed to retrieve validation result: {str(e)}",
+        )
 
 
 def register(mcp_instance: "FastMCP") -> None:
