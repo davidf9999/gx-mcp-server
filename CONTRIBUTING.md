@@ -26,7 +26,7 @@ We welcome all contributions: bug fixes, enhancements, docs, and tests!
    ```
 4. Verify the setup by running the examples:
    ```bash
-   python scripts/run_examples.py
+   uv run python scripts/run_examples.py
    ```
 
 ## Reporting Issues
