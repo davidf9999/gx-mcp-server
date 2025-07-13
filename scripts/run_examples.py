@@ -93,6 +93,12 @@ def run_examples():
         print(f"No examples found matching pattern: {EXAMPLE_PATTERN}")
         return
 
+    # Prioritize the basic example to run first for quicker feedback
+    basic_example = "examples/basic_roundtrip.py"
+    if basic_example in example_files:
+        example_files.remove(basic_example)
+        example_files.insert(0, basic_example)
+        
     print(f"\nFound {len(example_files)} examples to run: {', '.join(example_files)}")
     print("-" * 50)
 
