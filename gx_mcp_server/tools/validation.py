@@ -104,7 +104,7 @@ def run_checkpoint(
     validator = Validator(
         execution_engine=execution_engine,
         expectation_suite=suite,
-        batches=[Batch(data=df, batch_request=batch_request)],
+        batches=[Batch(data=df, batch_request=batch_request)],  # type: ignore[arg-type]
     )
 
     # 4. Run validation and store the result
