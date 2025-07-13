@@ -1,7 +1,10 @@
 # gx_mcp_server/tools/validation.py
 from typing import TYPE_CHECKING, Optional, cast
 
+from great_expectations.core.batch import Batch, RuntimeBatchRequest
 from great_expectations.exceptions import DataContextError
+from great_expectations.execution_engine import PandasExecutionEngine
+from great_expectations.validator.validator import Validator
 
 from gx_mcp_server.logging import logger
 from gx_mcp_server.core import schema, storage
@@ -17,15 +20,15 @@ def run_checkpoint(
     checkpoint_name: Optional[str] = None,
 ) -> schema.ValidationResult:
     """Run a validation checkpoint against a dataset using an expectation suite.
-    
+
     Args:
         suite_name: Name of the expectation suite to validate against
         dataset_handle: Handle to the dataset to validate
         checkpoint_name: Optional name for the checkpoint (unused currently)
-        
+
     Returns:
         ValidationResult: Contains validation_id for retrieving detailed results
-        
+
     Note:
         Use get_validation_result() with the returned validation_id to get detailed results.
     """
@@ -37,10 +40,9 @@ def run_checkpoint(
 
     # For dummy handles or missing dataset, skip GE and return success
     try:
-        _path = storage.DataStorage.get_handle_path(dataset_handle)
-        logger.info("Dataset path resolved: %s", _path)
+        df = storage.DataStorage.get(dataset_handle)
     except KeyError:
-        logger.warning(
+        logger.warning(  # type: ignore[unreachable]
             "Dataset handle '%s' not found, returning dummy success result",
             dataset_handle,
         )
@@ -57,8 +59,12 @@ def run_checkpoint(
             len(suite.expectations),
         )
     except DataContextError as e:
-        logger.warning("Suite '%s' not found in current context: %s", suite_name, str(e))
-        logger.info("This is expected in MCP servers where contexts don't persist across calls")
+        logger.warning(
+            "Suite '%s' not found in current context: %s", suite_name, str(e)
+        )
+        logger.info(
+            "This is expected in MCP servers where contexts don't persist across calls"
+        )
         # Return a success result with note about non-persistent context
         error_result = {
             "statistics": {"evaluated_expectations": 0},
@@ -79,26 +85,44 @@ def run_checkpoint(
         vid = storage.ValidationStorage.add(error_result)
         return schema.ValidationResult(validation_id=vid)
 
-    # For now, let's create a simple validation result
-    # TODO: Implement proper validation with current GE API
-    result_dict = {
-        "statistics": {"evaluated_expectations": len(suite.expectations)},
-        "results": [],
-        "success": True,
-    }
-    store_id = storage.ValidationStorage.add(result_dict)
-    logger.info("Validation completed successfully with ID: %s", store_id)
-    return schema.ValidationResult(validation_id=store_id)
+    # This is the most direct, low-level V3 API approach that avoids
+    # DataContext methods that might be trying to be "smart" about API versions.
+
+    # 1. Manually create an execution engine
+    execution_engine = PandasExecutionEngine()
+
+    # 2. Create a RuntimeBatchRequest for the in-memory data
+    batch_request = RuntimeBatchRequest(
+        datasource_name="runtime_pandas_datasource",  # a logical name
+        data_connector_name="default_runtime_data_connector_name",  # a logical name
+        data_asset_name=f"asset_{dataset_handle}",  # a logical name
+        runtime_parameters={"batch_data": df},
+        batch_identifiers={"default_identifier_name": "default_identifier"},
+    )
+
+    # 3. Instantiate the Validator directly
+    validator = Validator(
+        execution_engine=execution_engine,
+        expectation_suite=suite,
+        batches=[Batch(data=df, batch_request=batch_request)],
+    )
+
+    # 4. Run validation and store the result
+    validation_result = validator.validate()
+    result_dict = validation_result.to_json_dict()
+    vid = storage.ValidationStorage.add(result_dict)
+    logger.info("Validation completed with ID: %s", vid)
+    return schema.ValidationResult(validation_id=vid)
 
 
 def get_validation_result(
     validation_id: str,
 ) -> schema.ValidationResultDetail:
     """Fetch detailed validation results for a prior validation run.
-    
+
     Args:
         validation_id: ID returned from run_checkpoint()
-        
+
     Returns:
         ValidationResultDetail: Detailed validation results including statistics and individual expectation results
     """
@@ -108,7 +132,10 @@ def get_validation_result(
         result = storage.ValidationStorage.get(validation_id)
         data = result if isinstance(result, dict) else result.to_json_dict()
         logger.info("Successfully retrieved validation result")
-        return cast(schema.ValidationResultDetail, schema.ValidationResultDetail.model_validate(data))
+        return cast(
+            schema.ValidationResultDetail,
+            schema.ValidationResultDetail.model_validate(data),
+        )
     except KeyError:
         logger.error("Validation result not found for ID: %s", validation_id)
         # Return a default error result
@@ -118,7 +145,10 @@ def get_validation_result(
             "success": False,
             "error": f"Validation result not found for ID: {validation_id}",
         }
-        return cast(schema.ValidationResultDetail, schema.ValidationResultDetail.model_validate(error_data))
+        return cast(
+            schema.ValidationResultDetail,
+            schema.ValidationResultDetail.model_validate(error_data),
+        )
     except Exception as e:
         logger.error("Error retrieving validation result: %s", str(e))
         error_data = {
@@ -127,7 +157,10 @@ def get_validation_result(
             "success": False,
             "error": f"Failed to retrieve validation result: {str(e)}",
         }
-        return cast(schema.ValidationResultDetail, schema.ValidationResultDetail.model_validate(error_data))
+        return cast(
+            schema.ValidationResultDetail,
+            schema.ValidationResultDetail.model_validate(error_data),
+        )
 
 
 def register(mcp_instance: "FastMCP") -> None:
