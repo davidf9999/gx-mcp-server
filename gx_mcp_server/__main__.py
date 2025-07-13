@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """
+TODO <fake>
+
 CLI entry point for GX MCP Server.
 
 Supports multiple transport modes:
