@@ -20,15 +20,16 @@
 uv sync
 uv pip install -e .
 
-# For development
-uv pip install -e .[dev]
+# For development (includes testing tools and dotenv)
+uv pip install -e ".[dev]"
 
 
-# 2. Run the server
-uv run python -m gx_mcp_server --http
+# 2. Set up your environment
+# Copy the example .env file and add your OpenAI API key (optional, for the AI example)
+cp .env.example .env
 
-# 3. Test with example
-uv run python examples/basic_roundtrip.py
+# 3. Run all examples
+python scripts/run_examples.py
 ```
 
 ## MCP Server Modes

@@ -23,9 +23,8 @@ uv sync
 # Run all tests
 uv run pytest
 
-# Test MCP server
-uv run python -m gx_mcp_server --http  # Terminal 1
-uv run python examples/basic_roundtrip.py  # Terminal 2
+# Test end-to-end functionality with examples
+python scripts/run_examples.py
 ```
 
 ### Code Quality

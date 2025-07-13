@@ -5,11 +5,12 @@ __pycache__/
 *$py.class
 
 # Virtual environments
-.env/
 .venv/
 env/
 venv/
 ENV/
+
+.env
 
 # UV package manager
 uv.lock

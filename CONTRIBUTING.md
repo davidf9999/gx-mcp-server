@@ -19,9 +19,9 @@ We welcome all contributions: bug fixes, enhancements, docs, and tests!
    uv run pre-commit run --all-files
    uv run pytest
    ```
-4. Start the server:
+4. Verify the setup by running the examples:
    ```bash
-   uv run python -m gx_mcp_server --http
+   python scripts/run_examples.py
    ```
 
 ## Reporting Issues

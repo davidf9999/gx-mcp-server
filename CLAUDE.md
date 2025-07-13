@@ -34,6 +34,9 @@ uv run pytest                         # Run all tests
 uv run pytest tests/test_datasets.py  # Run specific test file
 uv run pytest tests/test_expectations.py
 uv run pytest tests/test_validation.py
+
+# Run end-to-end examples
+python scripts/run_examples.py
 ```
 
 ### Code Quality
