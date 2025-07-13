@@ -19,6 +19,11 @@ We welcome all contributions: bug fixes, enhancements, docs, and tests!
    uv run pre-commit run --all-files
    uv run pytest
    ```
+   Or run the tests inside Docker using the provided image:
+   ```bash
+   docker build -t gx-mcp-server .
+   docker run --rm gx-mcp-server uv run pytest
+   ```
 4. Verify the setup by running the examples:
    ```bash
    python scripts/run_examples.py

@@ -86,8 +86,30 @@ The server supports multiple transport modes:
    ```bash
    uv run pytest
    ```
-   
+
    Note: You may see a harmless warning about Marshmallow `Number` field from Great Expectations - this is a known compatibility notice and doesn't affect functionality.
+
+## Docker
+
+You can also build and test the project entirely within a Docker container. The provided `Dockerfile` installs the dependencies with `uv` and exposes the server on port `8000`.
+
+Build the image:
+
+```bash
+docker build -t gx-mcp-server .
+```
+
+Run the server:
+
+```bash
+docker run --rm -p 8000:8000 gx-mcp-server
+```
+
+Execute the test suite inside the container:
+
+```bash
+docker run --rm gx-mcp-server uv run pytest
+```
 
 ## Architecture
 
