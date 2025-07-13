@@ -80,3 +80,7 @@ filterwarnings = [
     "ignore::marshmallow.warnings.ChangedInMarshmallow4Warning",
     "ignore:.*Number.*field should not be instantiated.*",
 ]
+
+[tool.ruff]
+# Complain about TODOs
+extend-select = ["FIX002"]
