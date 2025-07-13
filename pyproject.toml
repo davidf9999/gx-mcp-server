@@ -47,6 +47,9 @@ Homepage = "https://github.com/dfront/gx-mcp-server"
 Repository = "https://github.com/dfront/gx-mcp-server"
 Issues = "https://github.com/dfront/gx-mcp-server/issues"
 
+[tool.hatch.build.targets.wheel]
+packages = ["gx_mcp_server"]
+
 [tool.black]
 line-length = 88
 target-version = ['py311']
