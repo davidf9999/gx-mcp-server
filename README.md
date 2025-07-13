@@ -29,7 +29,7 @@ uv pip install -e ".[dev]"
 cp .env.example .env
 
 # 3. Run all examples
-python scripts/run_examples.py
+uv run python scripts/run_examples.py
 ```
 
 ## MCP Server Modes
