@@ -1,5 +1,5 @@
 # gx_mcp_server/tools/validation.py
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Optional
 
 from great_expectations.core.batch import Batch, RuntimeBatchRequest
 from great_expectations.exceptions import DataContextError
@@ -132,10 +132,7 @@ def get_validation_result(
         result = storage.ValidationStorage.get(validation_id)
         data = result if isinstance(result, dict) else result.to_json_dict()
         logger.info("Successfully retrieved validation result")
-        return cast(
-            schema.ValidationResultDetail,
-            schema.ValidationResultDetail.model_validate(data),
-        )
+        return schema.ValidationResultDetail.model_validate(data)
     except KeyError:
         logger.error("Validation result not found for ID: %s", validation_id)
         # Return a default error result
@@ -145,10 +142,7 @@ def get_validation_result(
             "success": False,
             "error": f"Validation result not found for ID: {validation_id}",
         }
-        return cast(
-            schema.ValidationResultDetail,
-            schema.ValidationResultDetail.model_validate(error_data),
-        )
+        return schema.ValidationResultDetail.model_validate(error_data)
     except Exception as e:
         logger.error("Error retrieving validation result: %s", str(e))
         error_data = {
@@ -157,10 +151,7 @@ def get_validation_result(
             "success": False,
             "error": f"Failed to retrieve validation result: {str(e)}",
         }
-        return cast(
-            schema.ValidationResultDetail,
-            schema.ValidationResultDetail.model_validate(error_data),
-        )
+        return schema.ValidationResultDetail.model_validate(error_data)
 
 
 def register(mcp_instance: "FastMCP") -> None:
