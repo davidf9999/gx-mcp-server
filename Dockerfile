@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 WORKDIR /app
-COPY pyproject.toml uv.lock* ./
+COPY pyproject.toml uv.lock* LICENSE README.md ./
 RUN pip install uv
 RUN uv sync
 COPY . .
