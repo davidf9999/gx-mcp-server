@@ -128,6 +128,23 @@ See:
 - [`examples/basic_roundtrip.py`](examples/basic_roundtrip.py) - Basic round trip demo
 - [`examples/ai_expectation_roundtrip.py`](examples/ai_expectation_roundtrip.py) - Complete MCP workflow demo with AI agent
 
+## AI-Assisted Expectation Suggestions
+
+The server exposes low-level tools but does not generate rules by itself. If you
+want help choosing expectations for a dataset, you can incorporate an external
+LLM to analyze your columns and propose a rule. The
+`ai_expectation_roundtrip.py` example shows one approach:
+
+1. Load a DataFrame with `load_dataset`.
+2. Create a suite with `create_suite`.
+3. Ask an AI model (e.g. OpenAI's GPT) to suggest an expectation based on the
+   column names.
+4. Pass that suggestion to `add_expectation`.
+5. Run `run_checkpoint` and retrieve the result with `get_validation_result`.
+
+This pattern lets you combine automated suggestions with the standard tools the
+server provides.
+
 ## Contributing & License
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [LICENSE](LICENSE).
