@@ -12,8 +12,10 @@ from great_expectations.exceptions import DataContextError
 from gx_mcp_server.logging import logger
 from gx_mcp_server.core import schema
 from gx_mcp_server.core.context import get_shared_context
+from importlib.metadata import version
 
-API_VERSION = "0.1.0"
+
+API_VERSION = version("gx-mcp-server")
 
 
 def get_version() -> dict:
