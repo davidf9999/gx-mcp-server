@@ -4,7 +4,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/gx-mcp-server)](https://pypi.org/project/gx-mcp-server)
 [![License](https://img.shields.io/github/license/davidf9999/gx-mcp-server)](LICENSE)
-[![CI](https://github.com/davidf9999/gx-mcp-server/actions/workflows/ci.yaml/badge.svg)](https://github.com/davidf9999/gx-mcp-server/actions/workflows/ci.yaml)
+[![CI](https://github.com/davidf9999/gx-mcp-server/actions/workflows/cl.yaml/badge.svg)](https://github.com/davidf9999/gx-mcp-server/actions/workflows/cl.yaml)
 
 ## TL;DR
 
