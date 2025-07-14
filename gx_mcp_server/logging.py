@@ -23,4 +23,4 @@ if not logger.handlers:
         logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
     )
     logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
