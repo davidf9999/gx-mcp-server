@@ -57,7 +57,6 @@ temp/
 gx_context/
 
 # Docker
-*.dockerignore
 docker-compose.override.yml
 docker-compose.*.yml
 
