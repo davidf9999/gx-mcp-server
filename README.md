@@ -3,8 +3,20 @@
 > Expose Great Expectations data-quality checks as MCP tools for LLM agents.
 
 [![PyPI version](https://img.shields.io/pypi/v/gx-mcp-server)](https://pypi.org/project/gx-mcp-server)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gx-mcp-server)](https://pypi.org/project/gx-mcp-server)
+[![Docker Hub](https://img.shields.io/docker/pulls/davidf9999/gx-mcp-server.svg)](https://hub.docker.com/r/davidf9999/gx-mcp-server)
 [![License](https://img.shields.io/github/license/davidf9999/gx-mcp-server)](LICENSE)
-[![CI](https://github.com/davidf9999/gx-mcp-server/actions/workflows/cl.yaml/badge.svg)](https://github.com/davidf9999/gx-mcp-server/actions/workflows/cl.yaml)
+[![CI](https://github.com/davidf9999/gx-mcp-server/actions/workflows/ci.yaml/badge.svg)](https://github.com/davidf9999/gx-mcp-server/actions/workflows/ci.yaml)
+[![Publish](https://github.com/davidf9999/gx-mcp-server/actions/workflows/publish.yaml/badge.svg)](https://github.com/davidf9999/gx-mcp-server/actions/workflows/publish.yaml)
+
+## Motivation
+
+Large Language Model (LLM) agents often need to interact with and validate data. Great Expectations is a powerful open-source tool for data quality, but it's not natively accessible to LLM agents. This server bridges that gap by exposing core Great Expectations functionality through the Model Context Protocol (MCP), allowing agents to:
+
+- Programmatically load datasets from various sources.
+- Define data quality rules (Expectations) on the fly.
+- Run validation checks and interpret the results.
+- Integrate robust data quality checks into their automated workflows.
 
 ## TL;DR
 
