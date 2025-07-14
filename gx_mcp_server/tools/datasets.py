@@ -60,9 +60,24 @@ def load_dataset(
             return {"error": f"Inline CSV exceeds {limit_mb} MB limit"}
 
         if source_type == "file":
-            df = pd.read_csv(Path(source))
+            path = Path(source)
+            if path.is_file():
+                if path.stat().st_size > LIMIT_BYTES:
+                    logger.warning(
+                        "Local CSV too large: %d bytes (limit: %d MB)",
+                        path.stat().st_size,
+                        limit_mb,
+                    )
+                    return {"error": f"Local CSV exceeds {limit_mb} MB limit"}
+            df = pd.read_csv(path)
         elif source_type == "url":
             import requests  # type: ignore[import]
+            from urllib.parse import urlparse
+
+            parsed = urlparse(source)
+            if parsed.scheme not in {"http", "https"}:
+                return {"error": "Only http(s) URLs are allowed"}
+
             resp = requests.get(source, timeout=30, stream=True)
             resp.raise_for_status()
             # Enforce Content-Length if provided
@@ -72,7 +87,24 @@ def load_dataset(
                     "Remote CSV too large: %d bytes (limit: %d MB)", size, limit_mb
                 )
                 return {"error": f"Remote CSV exceeds {limit_mb} MB limit"}
-            txt = resp.text
+            if size == 0:
+                # Stream download up to limit
+                chunks = []
+                total = 0
+                for chunk in resp.iter_content(chunk_size=8192, decode_unicode=True):
+                    if chunk:
+                        total += len(chunk.encode("utf-8"))
+                        if total > LIMIT_BYTES:
+                            logger.warning(
+                                "Remote CSV streamed exceeds %d MB limit", limit_mb
+                            )
+                            return {
+                                "error": f"Remote CSV exceeds {limit_mb} MB limit"
+                            }
+                        chunks.append(chunk)
+                txt = "".join(chunks)
+            else:
+                txt = resp.text
             df = pd.read_csv(io.StringIO(txt))
         elif source_type == "inline":
             df = pd.read_csv(io.StringIO(source))
