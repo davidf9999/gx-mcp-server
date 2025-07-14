@@ -6,7 +6,6 @@
 [![License](https://img.shields.io/github/license/davidf9999/gx-mcp-server)](LICENSE)
 [![CI](https://github.com/davidf9999/gx-mcp-server/actions/workflows/ci.yaml/badge.svg)](https://github.com/davidf9999/gx-mcp-server/actions/workflows/ci.yaml)
 
-
 ## Features
 
 - **load_dataset** – load CSV data (file, URL, or inline) into memory  
@@ -14,6 +13,7 @@
 - **add_expectation** – append rules to a suite  
 - **run_checkpoint** – execute validations and store results for later retrieval (no streaming)
 - **get_validation_result** – fetch detailed pass/fail summaries  
+
 
 ## Quickstart
 
@@ -24,7 +24,6 @@ uv pip install -e .
 
 # For development (includes testing tools and dotenv)
 uv pip install -e ".[dev]"
-
 
 # 2. Set up your environment
 # Copy the example .env file and add your OpenAI API key (optional, for the AI example)
@@ -52,6 +51,18 @@ The server supports multiple transport modes:
   ```bash
   uv run python -m gx_mcp_server --inspect
   ```
+
+### Configuring Maximum CSV File Size
+
+By default, the server limits inline and remote CSV files to **50 MB**.  
+To change this limit, set the `MCP_CSV_SIZE_LIMIT_MB` environment variable before starting the server.  
+Allowed values are integers [MB], between 1 and 1024.
+For example, to allow up to 200 MB:
+
+```bash
+export MCP_CSV_SIZE_LIMIT_MB=200
+uv run python -m gx_mcp_server --http
+```
 
 ## Manual Testing
 
@@ -150,9 +161,39 @@ LLM to analyze your columns and propose a rule. The
 This pattern lets you combine automated suggestions with the standard tools the
 server provides.
 
+## Continuous Integration
+
+All pushes and pull requests are automatically checked using [GitHub Actions](https://github.com/davidf9999/gx-mcp-server/actions).
+This runs linting (ruff), type checking (mypy), and the full test suite (pytest).
+You can see the current CI status in the badge above.
+
+To run all checks locally before submitting a PR:
+
+```bash
+uv sync
+uv pip install -e ".[dev]"
+uv run pre-commit run --all-files
+uv run ruff check .
+uv run mypy gx_mcp_server/
+uv run pytest
+```
+
 ## Telemetry
 
 Great Expectations collects anonymous usage statistics by default and will attempt to send them to `posthog.greatexpectations.io`. If your environment blocks outbound connections, these attempts may fail but do not affect validation. Set `GX_ANALYTICS_ENABLED=false` to disable telemetry entirely.
+
+
+## Future Work and Known Limitations
+
+This MCP server is intended for research, proof-of-concept, and AI agent integration. Before deploying in production, review the following:
+
+- **No persistent storage:** All datasets and results are held in memory only and will be lost on server restart.
+- **No authentication:** The HTTP server does not provide authentication or authorization. Do not expose to untrusted networks.
+- **Remote fetch is unrestricted:** The server can fetch any remote URL for datasets. Use only in trusted environments.
+- **Telemetry:** Great Expectations sends anonymous usage data by default. Disable by setting `GX_ANALYTICS_ENABLED=false`.
+- **Resource cleanup:** No automatic resource cleanup or eviction. Long sessions may consume significant memory.
+- **Concurrency:** Long-running operations may block other requests. No production-grade concurrency controls.
+- **No guarantee of backward compatibility:** The API may change in early relea
 
 ## Contributing & License
 
