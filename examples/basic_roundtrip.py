@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 import json
 
+
+
 from fastmcp import Client
+
 
 # 1) Start the server: python -m gx_mcp_server --http
 MCP = Client("http://localhost:8000/mcp/")
@@ -15,6 +18,10 @@ async def main() -> None:
         # 2) Load a tiny CSV inline
         csv = "x,y\n1,2\n3,4\n5,6"
         load_res = await client.call_tool("load_dataset", {"source": csv, "source_type": "inline"})
+        print("load_dataset response:", load_res.structured_content)
+        if not load_res.structured_content or "handle" not in load_res.structured_content:
+            print("Error loading dataset:", load_res.structured_content)
+            return
         dataset_handle = load_res.structured_content["handle"]
         print("Loaded dataset handle:", dataset_handle)
 

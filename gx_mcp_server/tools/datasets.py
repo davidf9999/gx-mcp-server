@@ -33,7 +33,7 @@ def get_csv_size_limit_bytes() -> int:
 def load_dataset(
     source: str,
     source_type: Literal["file", "url", "inline"] = "file",
-) -> schema.DatasetHandle:
+) -> schema.DatasetHandle | dict:
     """Load data (CSV string, URL, or local file) into memory and return a handle.
 
     Args:
@@ -51,38 +51,43 @@ def load_dataset(
     logger.info("Called load_dataset(source_type=%s)", source_type)
     LIMIT_BYTES = get_csv_size_limit_bytes()
     limit_mb = LIMIT_BYTES // (1024 * 1024)
-
-    # Reject large inline payloads
-    if source_type == "inline" and len(source.encode("utf-8")) > LIMIT_BYTES:
-        logger.warning(
-            "Inline CSV too large: %d bytes (limit: %d MB)", len(source), limit_mb
-        )
-        raise ValueError(f"Inline CSV exceeds {limit_mb} MB limit")
-
-    if source_type == "file":
-        df = pd.read_csv(Path(source))
-    elif source_type == "url":
-        import requests  # type: ignore[import]
-
-        resp = requests.get(source, timeout=30, stream=True)
-        resp.raise_for_status()
-        # Enforce Content-Length if provided
-        size = int(resp.headers.get("Content-Length", 0))
-        if size > LIMIT_BYTES:
+    try:
+        # Reject large inline payloads
+        if source_type == "inline" and len(source.encode("utf-8")) > LIMIT_BYTES:
             logger.warning(
-                "Remote CSV too large: %d bytes (limit: %d MB)", size, limit_mb
+                "Inline CSV too large: %d bytes (limit: %d MB)", len(source), limit_mb
             )
-            raise ValueError(f"Remote CSV exceeds {limit_mb} MB limit")
-        txt = resp.text
-        df = pd.read_csv(io.StringIO(txt))
-    else:
-        df = pd.read_csv(io.StringIO(source))
+            return {"error": f"Inline CSV exceeds {limit_mb} MB limit"}
 
-    handle = storage.DataStorage.add(df)
-    logger.info(
-        "Loaded dataset handle=%s (%d rows, %d cols)", handle, len(df), len(df.columns)
-    )
-    return schema.DatasetHandle(handle=handle)
+        if source_type == "file":
+            df = pd.read_csv(Path(source))
+        elif source_type == "url":
+            import requests  # type: ignore[import]
+            resp = requests.get(source, timeout=30, stream=True)
+            resp.raise_for_status()
+            # Enforce Content-Length if provided
+            size = int(resp.headers.get("Content-Length", 0))
+            if size > LIMIT_BYTES:
+                logger.warning(
+                    "Remote CSV too large: %d bytes (limit: %d MB)", size, limit_mb
+                )
+                return {"error": f"Remote CSV exceeds {limit_mb} MB limit"}
+            txt = resp.text
+            df = pd.read_csv(io.StringIO(txt))
+        elif source_type == "inline":
+            df = pd.read_csv(io.StringIO(source))
+        else:
+            logger.error("Unknown source_type: %s", source_type)
+            return {"error": f"Unknown source_type: {source_type}"}
+
+        handle = storage.DataStorage.add(df)
+        logger.info(
+            "Loaded dataset handle=%s (shape=%s, columns=%s)", handle, df.shape, df.columns.tolist()
+        )
+        return schema.DatasetHandle(handle=handle)
+    except Exception as e:
+        logger.error("Failed to load dataset: %s", str(e))
+        return {"error": f"Dataset loading failed: {str(e)}"}
 
 
 def register(mcp_instance: "FastMCP") -> None:

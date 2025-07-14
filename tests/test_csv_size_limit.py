@@ -1,4 +1,3 @@
-import pytest
 from gx_mcp_server.tools.datasets import load_dataset, get_csv_size_limit_bytes
 
 
@@ -14,8 +13,9 @@ def make_csv_with_size(byte_size):
 def test_default_limit_inline(monkeypatch):
     # Should reject ~51MB inline by default
     csv = make_csv_with_size(51 * 1024 * 1024)
-    with pytest.raises(ValueError, match="exceeds 50 MB"):
-        load_dataset(csv, source_type="inline")
+    res = load_dataset(csv, source_type="inline")
+    assert "error" in res
+    assert "exceeds 50 MB" in res["error"]
 
 
 def test_env_override_increases_limit(monkeypatch):
@@ -30,24 +30,27 @@ def test_env_override_too_low(monkeypatch):
     # Values < 1 should fall back to default (50)
     monkeypatch.setenv("MCP_CSV_SIZE_LIMIT_MB", "0")
     csv = make_csv_with_size(51 * 1024 * 1024)
-    with pytest.raises(ValueError, match="exceeds 50 MB"):
-        load_dataset(csv, source_type="inline")
+    res = load_dataset(csv, source_type="inline")
+    assert "error" in res
+    assert "exceeds 50 MB" in res["error"]
 
 
 def test_env_override_too_high(monkeypatch):
     # Values > 1024 should fall back to default (50)
     monkeypatch.setenv("MCP_CSV_SIZE_LIMIT_MB", "9999")
     csv = make_csv_with_size(51 * 1024 * 1024)
-    with pytest.raises(ValueError, match="exceeds 50 MB"):
-        load_dataset(csv, source_type="inline")
+    res = load_dataset(csv, source_type="inline")
+    assert "error" in res
+    assert "exceeds 50 MB" in res["error"]
 
 
 def test_env_override_non_int(monkeypatch):
     # Non-int values should fall back to default
     monkeypatch.setenv("MCP_CSV_SIZE_LIMIT_MB", "hello")
     csv = make_csv_with_size(51 * 1024 * 1024)
-    with pytest.raises(ValueError, match="exceeds 50 MB"):
-        load_dataset(csv, source_type="inline")
+    res = load_dataset(csv, source_type="inline")
+    assert "error" in res
+    assert "exceeds 50 MB" in res["error"]
 
 
 def test_get_csv_size_limit_bytes_default(monkeypatch):

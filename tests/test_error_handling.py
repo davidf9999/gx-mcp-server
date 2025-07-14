@@ -1,5 +1,4 @@
 # tests/test_error_handling.py
-import pytest
 import uuid
 import pandas as pd
 from gx_mcp_server.tools.datasets import load_dataset
@@ -33,9 +32,10 @@ def test_add_unsupported_expectation():
     suite_name = "test_suite_unsupported_exp"
     create_suite(suite_name=suite_name, dataset_handle="dummy")
     # Using a non-existent expectation type should raise an exception from GX
-    with pytest.raises(Exception):
-        add_expectation(
-            suite_name=suite_name,
-            expectation_type="expect_this_to_fail_miserably",
-            kwargs={"column": "col1"},
-        )
+    res = add_expectation(
+        suite_name=suite_name,
+        expectation_type="expect_this_to_fail_miserably",
+        kwargs={"column": "col1"},
+    )
+    assert not res.success
+    assert "failed" in res.message.lower() or "not found" in res.message.lower()

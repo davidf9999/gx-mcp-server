@@ -1,5 +1,4 @@
 import pandas as pd
-import pytest
 
 from gx_mcp_server.tools.datasets import load_dataset
 from gx_mcp_server.core.storage import DataStorage
@@ -16,8 +15,8 @@ def test_load_and_handle():
 def test_load_empty_csv():
     """Test loading an empty CSV file."""
     empty_csv = ""
-    with pytest.raises(Exception):
-        load_dataset(source=empty_csv, source_type="inline")
+    res = load_dataset(source=empty_csv, source_type="inline")
+    assert "error" in res
 
 
 def test_load_header_only_csv():
