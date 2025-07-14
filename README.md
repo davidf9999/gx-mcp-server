@@ -4,6 +4,8 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/gx-mcp-server)](https://pypi.org/project/gx-mcp-server)
 [![License](https://img.shields.io/github/license/davidf9999/gx-mcp-server)](LICENSE)
+[![CI](https://github.com/davidf9999/gx-mcp-server/actions/workflows/ci.yaml/badge.svg)](https://github.com/davidf9999/gx-mcp-server/actions/workflows/ci.yaml)
+
 
 ## Features
 
@@ -147,6 +149,10 @@ LLM to analyze your columns and propose a rule. The
 
 This pattern lets you combine automated suggestions with the standard tools the
 server provides.
+
+## Telemetry
+
+Great Expectations collects anonymous usage statistics by default and will attempt to send them to `posthog.greatexpectations.io`. If your environment blocks outbound connections, these attempts may fail but do not affect validation. Set `GX_ANALYTICS_ENABLED=false` to disable telemetry entirely.
 
 ## Contributing & License
 

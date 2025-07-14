@@ -29,6 +29,22 @@ We welcome all contributions: bug fixes, enhancements, docs, and tests!
    uv run python scripts/run_examples.py
    ```
 
+## Continuous Integration
+
+All pull requests and pushes to `main` are automatically checked by [GitHub Actions](https://github.com/davidf9999/gx-mcp-server/actions).  
+Tests, linters, and type checks will run automatically. Your pull request must pass these checks to be merged.
+
+**Recommended before submitting a PR:**
+
+```bash
+uv sync
+uv pip install -e ".[dev]"
+uv run pre-commit run --all-files
+uv run ruff check .
+uv run mypy gx_mcp_server/
+uv run pytest
+```
+
 ## Reporting Issues
 
 - Search existing issues first.
