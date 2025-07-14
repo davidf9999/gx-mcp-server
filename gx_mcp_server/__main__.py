@@ -104,7 +104,7 @@ async def run_http(host: str, port: int) -> None:
     await mcp.run_http_async(host=host, port=port)
 
 
-def run_inspector(host: str, port: int) -> None:
+def show_inspector_instructions(host: str, port: int) -> None:
     """Run MCP server with inspector for development."""
     from gx_mcp_server import logger
     
@@ -128,7 +128,7 @@ def main() -> None:
     try:
         if args.inspect:
             # Inspector mode (synchronous)
-            run_inspector(args.host, args.port)
+            show_inspector_instructions(args.host, args.port)
         elif args.http:
             # HTTP mode (async)
             asyncio.run(run_http(args.host, args.port))

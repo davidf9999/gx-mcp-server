@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import asyncio
 import json
-import os
 
 import openai
 import pandas as pd
@@ -10,16 +9,13 @@ import pandas as pd
 from fastmcp import Client
 
 # ── Configuration ──────────────────────────────────────────────────────────────
-# Replace with your OpenAI API key, or set env var OPENAI_API_KEY
-openai.api_key = os.getenv("OPENAI_API_KEY", "sk-...")
-
+# Set env var OPENAI_API_KEY to use the AI features.
 MCP = Client("http://localhost:8000/mcp")
 
 
 async def main() -> None:
     print("Starting AI-driven MCP example...")
-    print("Make sure the server is running: python -m gx_mcp_server --http")
-    await asyncio.sleep(1)  # Give the server some time to start
+    print("Make sure the server is running: `python -m gx_mcp_server --http`")
     
     async with MCP:
         # 1) Load a small dataset

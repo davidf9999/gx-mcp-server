@@ -12,8 +12,7 @@ MCP = Client("http://localhost:8000/mcp/")
 
 async def main() -> None:
     print("Starting MCP client example...")
-    print("Make sure the server is running: python -m gx_mcp_server --http")
-    await asyncio.sleep(1)  # Give the server some time to start
+    print("Make sure the server is running: `python -m gx_mcp_server --http`")
     async with MCP as client:
         # 2) Load a tiny CSV inline
         csv = "x,y\n1,2\n3,4\n5,6"
