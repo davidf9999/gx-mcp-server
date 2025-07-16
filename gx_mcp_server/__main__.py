@@ -62,7 +62,13 @@ Examples:
         default="INFO",
         help="Logging level (default: INFO)",
     )
-    
+
+    parser.add_argument(
+        "--basic-auth",
+        metavar="USER:PASS",
+        help="Require HTTP Basic auth with given credentials",
+    )
+
     return parser.parse_args()
 
 
@@ -93,18 +99,30 @@ async def run_stdio() -> None:
     await mcp.run_stdio_async()
 
 
-async def run_http(host: str, port: int) -> None:
+async def run_http(host: str, port: int, basic_auth: str | None = None) -> None:
     """Run MCP server in HTTP mode."""
     from gx_mcp_server import logger
     
     logger.info(f"Starting GX MCP Server in HTTP mode on {host}:{port}")
     mcp = create_server()
-    
+
+    middleware = None
+    if basic_auth:
+        from starlette.middleware import Middleware
+        from gx_mcp_server.basic_auth import BasicAuthMiddleware
+
+        try:
+            username, password = basic_auth.split(":", 1)
+        except ValueError:
+            raise ValueError("--basic-auth must be in USER:PASS format")
+
+        middleware = [Middleware(BasicAuthMiddleware, username=username, password=password)]
+
     # Run the server in HTTP mode
-    await mcp.run_http_async(host=host, port=port)
+    await mcp.run_http_async(host=host, port=port, middleware=middleware)
 
 
-def show_inspector_instructions(host: str, port: int) -> None:
+def show_inspector_instructions(host: str, port: int, basic_auth: str | None = None) -> None:
     """Run MCP server with inspector for development."""
     from gx_mcp_server import logger
     
@@ -117,7 +135,20 @@ def show_inspector_instructions(host: str, port: int) -> None:
     
     # For now, run the server in HTTP mode as a fallback
     mcp = create_server()
-    asyncio.run(mcp.run_http_async(host=host, port=port))
+
+    middleware = None
+    if basic_auth:
+        from starlette.middleware import Middleware
+        from gx_mcp_server.basic_auth import BasicAuthMiddleware
+
+        try:
+            username, password = basic_auth.split(":", 1)
+        except ValueError:
+            raise ValueError("--basic-auth must be in USER:PASS format")
+
+        middleware = [Middleware(BasicAuthMiddleware, username=username, password=password)]
+
+    asyncio.run(mcp.run_http_async(host=host, port=port, middleware=middleware))
 
 
 def main() -> None:
@@ -128,10 +159,10 @@ def main() -> None:
     try:
         if args.inspect:
             # Inspector mode (synchronous)
-            show_inspector_instructions(args.host, args.port)
+            show_inspector_instructions(args.host, args.port, args.basic_auth)
         elif args.http:
             # HTTP mode (async)
-            asyncio.run(run_http(args.host, args.port))
+            asyncio.run(run_http(args.host, args.port, args.basic_auth))
         else:
             # STDIO mode (async, default)
             asyncio.run(run_stdio())
