@@ -62,7 +62,14 @@ Examples:
         default="INFO",
         help="Logging level (default: INFO)",
     )
-    
+
+    parser.add_argument(
+        "--rate-limit",
+        type=int,
+        default=60,
+        help="Requests per minute limit for HTTP server (default: 60)",
+    )
+
     return parser.parse_args()
 
 
@@ -93,18 +100,46 @@ async def run_stdio() -> None:
     await mcp.run_stdio_async()
 
 
-async def run_http(host: str, port: int) -> None:
-    """Run MCP server in HTTP mode."""
+async def run_http(host: str, port: int, rate_limit: int, log_level: str) -> None:
+    """Run MCP server in HTTP mode with rate limiting."""
     from gx_mcp_server import logger
-    
+    from fastmcp.utilities.cli import log_server_banner
+    from slowapi import _rate_limit_exceeded_handler
+    from slowapi.errors import RateLimitExceeded
+    from slowapi.extension import Limiter
+    from slowapi.middleware import SlowAPIMiddleware
+    from slowapi.util import get_remote_address
+    from starlette.middleware import Middleware
+    import uvicorn
+
     logger.info(f"Starting GX MCP Server in HTTP mode on {host}:{port}")
     mcp = create_server()
-    
-    # Run the server in HTTP mode
-    await mcp.run_http_async(host=host, port=port)
+
+    limiter = Limiter(
+        key_func=get_remote_address,
+        default_limits=[f"{rate_limit}/minute"],
+    )
+    middleware = [Middleware(SlowAPIMiddleware)]
+    app = mcp.http_app(middleware=middleware)
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+    path = app.state.path.lstrip("/")
+    log_server_banner(mcp, "http", host=host, port=port, path=path)
+
+    config = uvicorn.Config(
+        app,
+        host=host,
+        port=port,
+        log_level=log_level.lower(),
+        timeout_graceful_shutdown=0,
+        lifespan="on",
+    )
+    server = uvicorn.Server(config)
+    await server.serve()
 
 
-def show_inspector_instructions(host: str, port: int) -> None:
+def show_inspector_instructions(host: str, port: int, rate_limit: int, log_level: str) -> None:
     """Run MCP server with inspector for development."""
     from gx_mcp_server import logger
     
@@ -116,8 +151,7 @@ def show_inspector_instructions(host: str, port: int) -> None:
     logger.info("3. Connect the inspector to http://localhost:8000")
     
     # For now, run the server in HTTP mode as a fallback
-    mcp = create_server()
-    asyncio.run(mcp.run_http_async(host=host, port=port))
+    asyncio.run(run_http(host, port, rate_limit, log_level))
 
 
 def main() -> None:
@@ -128,10 +162,10 @@ def main() -> None:
     try:
         if args.inspect:
             # Inspector mode (synchronous)
-            show_inspector_instructions(args.host, args.port)
+            show_inspector_instructions(args.host, args.port, args.rate_limit, args.log_level)
         elif args.http:
             # HTTP mode (async)
-            asyncio.run(run_http(args.host, args.port))
+            asyncio.run(run_http(args.host, args.port, args.rate_limit, args.log_level))
         else:
             # STDIO mode (async, default)
             asyncio.run(run_stdio())
