@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING, Literal, Optional
 
 import pandas as pd
 
-try:  # Optional polars support for streaming
+# ``polars`` is optional and used when streaming large CSVs
+try:
     import polars as pl
     HAS_POLARS = True
 except Exception:  # pragma: no cover - polars optional
