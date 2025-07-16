@@ -118,6 +118,10 @@ Set `GX_ANALYTICS_ENABLED=false` to disable telemetry.
 - **Concurrency:** Blocking/serial; no job queue or async.
 - **API may change:** Expect early-breaking changes.
 
+## Project Roadmap
+
+See [ROADMAP-v2.md](ROADMAP-v2.md) for upcoming sprints and priority labels.
+
 ## License & Contributing
 
 MIT License. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to help!
