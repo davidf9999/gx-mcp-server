@@ -2,9 +2,15 @@
 import io
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, Optional
 
 import pandas as pd
+
+try:  # Optional polars support for streaming
+    import polars as pl
+    HAS_POLARS = True
+except Exception:  # pragma: no cover - polars optional
+    HAS_POLARS = False
 
 from gx_mcp_server.logging import logger
 from gx_mcp_server.core import schema, storage
@@ -33,12 +39,20 @@ def get_csv_size_limit_bytes() -> int:
 def load_dataset(
     source: str,
     source_type: Literal["file", "url", "inline"] = "file",
+    max_rows: Optional[int] = None,
+    use_polars: bool = False,
 ) -> schema.DatasetHandle | dict:
     """Load data (CSV string, URL, or local file) into memory and return a handle.
 
     Args:
         source: Path to file, URL, or inline CSV string
         source_type: Type of source - "file", "url", or "inline"
+
+    Args:
+        source: Path to file, URL, or inline CSV string
+        source_type: Type of source - "file", "url", or "inline"
+        max_rows: Maximum rows to read (None for all)
+        use_polars: Use ``polars.scan_csv`` for reading if available
 
     Returns:
         DatasetHandle: Handle to the loaded dataset for use in other tools
@@ -48,7 +62,7 @@ def load_dataset(
         - URL: load_dataset("https://example.com/data.csv", "url")
         - Inline: load_dataset("x,y\\n1,2\\n3,4", "inline")
     """
-    logger.info("Called load_dataset(source_type=%s)", source_type)
+    logger.info("Called load_dataset(source_type=%s, max_rows=%s, use_polars=%s)", source_type, max_rows, use_polars)
     LIMIT_BYTES = get_csv_size_limit_bytes()
     limit_mb = LIMIT_BYTES // (1024 * 1024)
     try:
@@ -69,7 +83,15 @@ def load_dataset(
                         limit_mb,
                     )
                     return {"error": f"Local CSV exceeds {limit_mb} MB limit"}
-            df = pd.read_csv(path)
+            if use_polars and HAS_POLARS:
+                scan = pl.scan_csv(path)
+                if max_rows is not None:
+                    df = scan.fetch(max_rows)
+                else:
+                    df = scan.collect()
+                df = df.to_pandas()
+            else:
+                df = pd.read_csv(path, nrows=max_rows)
         elif source_type == "url":
             import requests  # type: ignore[import]
             from urllib.parse import urlparse
@@ -105,9 +127,9 @@ def load_dataset(
                 txt = "".join(chunks)
             else:
                 txt = resp.text
-            df = pd.read_csv(io.StringIO(txt))
+            df = pd.read_csv(io.StringIO(txt), nrows=max_rows)
         elif source_type == "inline":
-            df = pd.read_csv(io.StringIO(source))
+            df = pd.read_csv(io.StringIO(source), nrows=max_rows)
         else:
             logger.error("Unknown source_type: %s", source_type)
             return {"error": f"Unknown source_type: {source_type}"}
