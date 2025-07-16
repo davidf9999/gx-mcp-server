@@ -41,6 +41,8 @@ dev = [
     "openai",
     "python-dotenv",
 ]
+snowflake = ["snowflake-connector-python"]
+bigquery  = ["google-cloud-bigquery"]
 
 [project.scripts]
 gx-mcp-server = "gx_mcp_server.__main__:main"

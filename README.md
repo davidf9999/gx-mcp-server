@@ -29,6 +29,7 @@ Large Language Model (LLM) agents often need to interact with and validate data.
 ## Features
 
 - Load CSV data from file, URL, or inline
+- Load tables from Snowflake or BigQuery using URI prefixes
 - Define and modify ExpectationSuites
 - Validate data and fetch detailed results
 - Multiple transport modes: STDIO, HTTP, Inspector (GUI)
@@ -68,6 +69,25 @@ export MCP_CSV_SIZE_LIMIT_MB=200  # Allow up to 200 MB
 uv run python -m gx_mcp_server --http
 ```
 Allowed values: 1–1024 MB.
+
+## Warehouse Connectors
+
+Install extras to enable Snowflake or BigQuery support:
+
+```bash
+uv pip install -e .[snowflake]
+uv pip install -e .[bigquery]
+```
+
+Then load tables directly using URIs:
+
+```python
+load_dataset("snowflake://user:pass@account/db/schema/table?warehouse=WH")
+load_dataset("bigquery://my-project/dataset/table")
+```
+
+`load_dataset` automatically detects these prefixes and delegates to the
+appropriate connector.
 
 ## Docker
 
