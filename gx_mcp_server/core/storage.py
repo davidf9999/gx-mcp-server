@@ -48,6 +48,22 @@ class ValidationStorage:
         return vid
 
     @staticmethod
+    def reserve() -> str:
+        """Reserve an ID for an asynchronous validation run."""
+        vid = str(uuid.uuid4())
+        with _result_lock:
+            if len(_result_store) >= _MAX_ITEMS:
+                _result_store.popitem(last=False)
+            _result_store[vid] = {"status": "pending"}
+        return vid
+
+    @staticmethod
+    def set(vid: str, result: Any) -> None:
+        """Store a validation result for a pre-reserved ID."""
+        with _result_lock:
+            _result_store[vid] = result
+
+    @staticmethod
     def get(vid: str) -> Any:
         with _result_lock:
             return _result_store[vid]
