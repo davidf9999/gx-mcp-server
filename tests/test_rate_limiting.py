@@ -1,5 +1,5 @@
 import pytest
-from starlette.testclient import TestClient
+import httpx
 from starlette.responses import JSONResponse
 from starlette.requests import Request
 
@@ -28,11 +28,14 @@ def make_app(limit: int):
     return app
 
 
-def test_rate_limit_exceeded():
+@pytest.mark.asyncio
+async def test_rate_limit_exceeded():
     app = make_app(2)
-    client = TestClient(app)
-    for _ in range(2):
-        resp = client.get("/ping")
-        assert resp.status_code == 200
-    resp = client.get("/ping")
-    assert resp.status_code == 429
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        for _ in range(2):
+            resp = await client.get("/ping")
+            assert resp.status_code == 200
+        resp = await client.get("/ping")
+        assert resp.status_code == 429

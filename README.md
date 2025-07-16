@@ -54,6 +54,11 @@ uv run python scripts/run_examples.py
   uv run python -m gx_mcp_server --http
   ```
 
+- **HTTP mode (localhost only):**
+  ```bash
+  uv run python -m gx_mcp_server --http --host 127.0.0.1
+  ```
+
 - **Inspector GUI:**
   ```bash
   npx @modelcontextprotocol/inspector
@@ -117,6 +122,10 @@ Set `GX_ANALYTICS_ENABLED=false` to disable telemetry.
 - **No resource cleanup:** Large/long sessions may use significant RAM.
 - **Concurrency:** Blocking/serial; no job queue or async.
 - **API may change:** Expect early-breaking changes.
+
+## Project Roadmap
+
+See [ROADMAP-v2.md](ROADMAP-v2.md) for upcoming sprints and priority labels.
 
 ## License & Contributing
 

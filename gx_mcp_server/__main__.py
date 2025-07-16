@@ -101,7 +101,7 @@ async def run_stdio() -> None:
 
 
 async def run_http(host: str, port: int, rate_limit: int, log_level: str) -> None:
-    """Run MCP server in HTTP mode with rate limiting."""
+    """Run MCP server in HTTP mode with rate limiting and health endpoint."""
     from gx_mcp_server import logger
     from fastmcp.utilities.cli import log_server_banner
     from slowapi import _rate_limit_exceeded_handler
@@ -109,7 +109,10 @@ async def run_http(host: str, port: int, rate_limit: int, log_level: str) -> Non
     from slowapi.extension import Limiter
     from slowapi.middleware import SlowAPIMiddleware
     from slowapi.util import get_remote_address
+    from starlette.applications import Starlette
+    from starlette.routing import Mount, Route
     from starlette.middleware import Middleware
+    from gx_mcp_server.tools.health import health
     import uvicorn
 
     logger.info(f"Starting GX MCP Server in HTTP mode on {host}:{port}")
@@ -120,11 +123,19 @@ async def run_http(host: str, port: int, rate_limit: int, log_level: str) -> Non
         default_limits=[f"{rate_limit}/minute"],
     )
     middleware = [Middleware(SlowAPIMiddleware)]
-    app = mcp.http_app(middleware=middleware)
+    mcp_app = mcp.http_app()
+    app = Starlette(
+        lifespan=mcp_app.lifespan,
+        routes=[
+            Route("/mcp/health", health, methods=["GET"], name="health"),
+            Mount("/", mcp_app),
+        ],
+        middleware=middleware,
+    )
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-    path = app.state.path.lstrip("/")
+    path = mcp_app.state.path.lstrip("/")
     log_server_banner(mcp, "http", host=host, port=port, path=path)
 
     config = uvicorn.Config(
