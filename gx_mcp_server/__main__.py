@@ -102,6 +102,12 @@ Examples:
         action="store_true",
         help="Enable OpenTelemetry tracing",
     )
+    parser.add_argument(
+        "--basic-auth",
+        metavar="USER:PASS",
+        help="Require HTTP Basic auth with given credentials",
+    )
+
     return parser.parse_args()
 
 
@@ -154,7 +160,7 @@ def setup_tracing(app: Any) -> None:
     app.add_middleware(OpenTelemetryMiddleware)
 
 
-async def run_http(host: str, port: int, rate_limit: int, log_level: str, metrics_port: int, trace_enabled: bool) -> None:
+async def run_http(host: str, port: int, rate_limit: int, log_level: str, metrics_port: int, trace_enabled: bool, basic_auth: str | None = None) -> None:
     """Run MCP server in HTTP mode with rate limiting, health endpoint, and optional metrics/tracing."""
     from gx_mcp_server import logger
     from fastmcp.utilities.cli import log_server_banner
@@ -179,6 +185,16 @@ async def run_http(host: str, port: int, rate_limit: int, log_level: str, metric
         default_limits=[f"{rate_limit}/minute"],
     )
     middleware = [Middleware(SlowAPIMiddleware)]
+
+    if basic_auth:
+        from gx_mcp_server.basic_auth import BasicAuthMiddleware
+
+        try:
+            username, password = basic_auth.split(":", 1)
+        except ValueError:
+            raise ValueError("--basic-auth must be in USER:PASS format")
+
+        middleware.append(Middleware(BasicAuthMiddleware, username=username, password=password))
 
     # Build FastAPI app with health route mounted before MCP routes
     mcp_app = mcp.http_app()
@@ -233,7 +249,7 @@ async def run_http(host: str, port: int, rate_limit: int, log_level: str, metric
     await asyncio.gather(server_main.serve(), server_metrics.serve())
 
 
-def show_inspector_instructions(host: str, port: int) -> None:
+def show_inspector_instructions(host: str, port: int, basic_auth: str | None = None) -> None:
     """Run MCP server with inspector for development."""
     from gx_mcp_server import logger
     
@@ -246,7 +262,20 @@ def show_inspector_instructions(host: str, port: int) -> None:
     
     # For now, run the server in HTTP mode as a fallback
     mcp = create_server()
-    asyncio.run(mcp.run_http_async(host=host, port=port))
+
+    middleware = None
+    if basic_auth:
+        from starlette.middleware import Middleware
+        from gx_mcp_server.basic_auth import BasicAuthMiddleware
+
+        try:
+            username, password = basic_auth.split(":", 1)
+        except ValueError:
+            raise ValueError("--basic-auth must be in USER:PASS format")
+
+        middleware = [Middleware(BasicAuthMiddleware, username=username, password=password)]
+
+    asyncio.run(mcp.run_http_async(host=host, port=port, middleware=middleware))
 
 
 def main() -> None:
@@ -254,7 +283,7 @@ def main() -> None:
     args = parse_args()
     if args.trace:
         os.environ.setdefault("OTEL_RESOURCE_ATTRIBUTES", "service.name=gx-mcp-server")
-    setup_logging(args.log_level)
+    setup_logging(args.log_.level)
     from gx_mcp_server.core import storage
 
     storage.configure_storage_backend(args.storage_backend)
@@ -262,10 +291,10 @@ def main() -> None:
     try:
         if args.inspect:
             # Inspector mode (synchronous)
-            show_inspector_instructions(args.host, args.port)
+            show_inspector_instructions(args.host, args.port, args.basic_auth)
         elif args.http:
             # HTTP mode (async)
-            asyncio.run(run_http(args.host, args.port, args.rate_limit, args.log_level, args.metrics_port, args.trace))
+            asyncio.run(run_http(args.host, args.port, args.rate_limit, args.log_level, args.metrics_port, args.trace, args.basic_auth))
         else:
             # STDIO mode (async, default)
             asyncio.run(run_stdio())

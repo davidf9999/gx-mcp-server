@@ -56,6 +56,8 @@ start the HTTP server.
 - **HTTP mode:** For browser and API clients
 ```bash
 uv run python -m gx_mcp_server --http
+# add basic auth (e.g., user "admin" with password "secret")
+uv run python -m gx_mcp_server --http --basic-auth admin:secret
 ```
 
 *Requests per minute limit*
@@ -63,11 +65,6 @@ uv run python -m gx_mcp_server --http
 uv run python -m gx_mcp_server --http --rate-limit 30
 ```
 Default is 60 requests per minute.
-
-- **HTTP mode (localhost only):**
-  ```bash
-  uv run python -m gx_mcp_server --http --host 127.0.0.1
-  ```
 
 - **HTTP mode (localhost only):**
   ```bash
@@ -159,7 +156,7 @@ Set `GX_ANALYTICS_ENABLED=false` to disable telemetry.
 ## Future Work & Known Limitations
 
 - **No persistent storage:** Data is in-memory; lost on restart.
-- **No authentication:** Do NOT expose HTTP to untrusted networks.
+- **Optional basic auth:** Use `--basic-auth user:pass` to require credentials.
 - **No URL restrictions:** Use only in trusted environments.
 - **No resource cleanup:** Large/long sessions may use significant RAM.
 - **Concurrency:** Blocking/serial; no job queue or async.
