@@ -54,6 +54,11 @@ uv run python scripts/run_examples.py
   uv run python -m gx_mcp_server --http
   ```
 
+- **HTTP mode (localhost only):**
+  ```bash
+  uv run python -m gx_mcp_server --http --host 127.0.0.1
+  ```
+
 - **Inspector GUI:**
   ```bash
   npx @modelcontextprotocol/inspector
