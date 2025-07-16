@@ -64,8 +64,9 @@ start the HTTP server.
 
 - **Inspector GUI:**
   ```bash
+  uv run python -m gx_mcp_server --inspect [--inspector-auth <token>]
   npx @modelcontextprotocol/inspector
-  # Connect to: http://localhost:8000/mcp/
+  # Connect to: http://localhost:8000/mcp/  # append ?token=<token> if auth enabled
   ```
 
 ## Configuring Maximum CSV File Size

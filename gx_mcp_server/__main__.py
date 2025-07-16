@@ -41,6 +41,14 @@ Examples:
         action="store_true", 
         help="Run with MCP Inspector for development/testing",
     )
+
+    parser.add_argument(
+        "--inspector-auth",
+        metavar="TOKEN",
+        type=str,
+        default=None,
+        help="Authentication token for the Inspector",
+    )
     
     parser.add_argument(
         "--port",
@@ -120,7 +128,7 @@ async def run_http(host: str, port: int) -> None:
     await server.serve()
 
 
-def show_inspector_instructions(host: str, port: int) -> None:
+def show_inspector_instructions(host: str, port: int, token: str | None = None) -> None:
     """Run MCP server with inspector for development."""
     from gx_mcp_server import logger
     
@@ -129,7 +137,10 @@ def show_inspector_instructions(host: str, port: int) -> None:
     logger.info("To use the MCP Inspector with this server:")
     logger.info("1. Start this server in HTTP mode: python -m gx_mcp_server --http")
     logger.info("2. In another terminal, run: npx @modelcontextprotocol/inspector")
-    logger.info("3. Connect the inspector to http://localhost:8000")
+    url = f"http://{host}:{port}"
+    if token:
+        url += f"?token={token}"
+    logger.info(f"3. Connect the inspector to {url}")
     
     # For now, run the server in HTTP mode as a fallback
     mcp = create_server()
@@ -144,7 +155,7 @@ def main() -> None:
     try:
         if args.inspect:
             # Inspector mode (synchronous)
-            show_inspector_instructions(args.host, args.port)
+            show_inspector_instructions(args.host, args.port, args.inspector_auth)
         elif args.http:
             # HTTP mode (async)
             asyncio.run(run_http(args.host, args.port))
