@@ -96,12 +96,28 @@ async def run_stdio() -> None:
 async def run_http(host: str, port: int) -> None:
     """Run MCP server in HTTP mode."""
     from gx_mcp_server import logger
-    
+    from starlette.applications import Starlette
+    from starlette.routing import Mount, Route
+    from gx_mcp_server.tools.health import health
+
     logger.info(f"Starting GX MCP Server in HTTP mode on {host}:{port}")
     mcp = create_server()
-    
-    # Run the server in HTTP mode
-    await mcp.run_http_async(host=host, port=port)
+
+    # Build FastAPI app with health route mounted before MCP routes
+    mcp_app = mcp.http_app()
+    app = Starlette(
+        lifespan=mcp_app.lifespan,
+        routes=[
+            Route("/mcp/health", health, methods=["GET"], name="health"),
+            Mount("/", mcp_app),
+        ],
+    )
+
+    import uvicorn
+
+    config = uvicorn.Config(app, host=host, port=port, timeout_graceful_shutdown=0)
+    server = uvicorn.Server(config)
+    await server.serve()
 
 
 def show_inspector_instructions(host: str, port: int) -> None:
