@@ -86,10 +86,10 @@ def load_dataset(
             if use_polars and HAS_POLARS:
                 scan = pl.scan_csv(path)
                 if max_rows is not None:
-                    df = scan.fetch(max_rows)
+                    pl_df = scan.fetch(max_rows)
                 else:
-                    df = scan.collect()
-                df = df.to_pandas()
+                    pl_df = scan.collect()
+                df = pl_df.to_pandas()
             else:
                 df = pd.read_csv(path, nrows=max_rows)
         elif source_type == "url":
