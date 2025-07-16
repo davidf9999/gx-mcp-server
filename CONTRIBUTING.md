@@ -14,11 +14,14 @@ We welcome all contributions: bug fixes, enhancements, docs, and tests!
    uv sync
    uv pip install -e .
    ```
+   You can also run `just install` to automatically set up `uv` in a virtual
+   environment and install all dependencies.
 3. Run formatting and tests:
    ```bash
    uv run pre-commit run --all-files
    uv run pytest
    ```
+   Or simply run `just lint` or `just test` to execute these steps.
    Or run the tests inside Docker using the provided image:
    ```bash
    docker build -t gx-mcp-server .
@@ -28,6 +31,7 @@ We welcome all contributions: bug fixes, enhancements, docs, and tests!
    ```bash
    uv run python scripts/run_examples.py
    ```
+   Use `just serve` to start the HTTP server for local testing.
 
 ## Continuous Integration
 
@@ -43,6 +47,10 @@ uv run pre-commit run --all-files
 uv run ruff check .
 uv run mypy gx_mcp_server/
 uv run pytest
+```
+The same workflow can be run via the Justfile with:
+```bash
+just install && just lint && just test
 ```
 
 ## Reporting Issues

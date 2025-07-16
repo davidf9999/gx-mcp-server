@@ -24,6 +24,7 @@ Large Language Model (LLM) agents often need to interact with and validate data.
 - **Run server:** `uv run python -m gx_mcp_server --http`
 - **Try examples:** `uv run python scripts/run_examples.py`
 - **Test:** `uv run pytest`
+- **Convenience tasks:** `just install`, `just lint`, `just test`, `just serve`
 - **Default CSV limit:** 50 MB (`MCP_CSV_SIZE_LIMIT_MB` to change)
 
 ## Features
@@ -41,6 +42,8 @@ uv pip install -e ".[dev]"
 cp .env.example .env  # (optional: add your OpenAI API key)
 uv run python scripts/run_examples.py
 ```
+You can also use `just install` to set up the environment and `just serve` to
+start the HTTP server.
 
 ## Usage
 
@@ -103,6 +106,7 @@ uv run ruff check .
 uv run mypy gx_mcp_server/
 uv run pytest
 ```
+These steps can also be executed via `just lint` and `just test`.
 
 ## Telemetry
 
