@@ -40,6 +40,7 @@ dev = [
     "pandas-stubs",
     "openai",
     "python-dotenv",
+    "fastapi",
 ]
 
 [project.scripts]

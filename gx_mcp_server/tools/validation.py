@@ -107,13 +107,13 @@ def run_checkpoint(
         logger.info("Validation completed with ID: %s", vid)
         return schema.ValidationResult(validation_id=vid)
 
-    vid = storage.ValidationStorage.reserve()
+    vid = storage.ValidationStorage.reserve()  # type: ignore[attr-defined]
 
     async def _task() -> None:
         result = await asyncio.to_thread(
             _execute_validation, suite_name, dataset_handle, checkpoint_name
         )
-        storage.ValidationStorage.set(vid, result)
+        storage.ValidationStorage.set(vid, result)  # type: ignore[attr-defined]
 
     background_tasks.add_task(_task)
     logger.info("Validation scheduled asynchronously with ID: %s", vid)
