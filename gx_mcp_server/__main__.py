@@ -62,7 +62,14 @@ Examples:
         default="INFO",
         help="Logging level (default: INFO)",
     )
-    
+
+    parser.add_argument(
+        "--storage-backend",
+        type=str,
+        default="memory",
+        help="Storage backend URI (default: memory). Use sqlite:///path/to/gx.db",
+    )
+
     return parser.parse_args()
 
 
@@ -124,6 +131,9 @@ def main() -> None:
     """Main entry point."""
     args = parse_args()
     setup_logging(args.log_level)
+    from gx_mcp_server.core import storage
+
+    storage.configure_storage_backend(args.storage_backend)
     
     try:
         if args.inspect:
