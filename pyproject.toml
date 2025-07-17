@@ -27,6 +27,8 @@ dependencies = [
     "great-expectations>=0.17",
     "pydantic>=1",
     "requests>=2.28",
+    # Optional streaming support
+    "polars>=0.20",
 ]
 
 [project.optional-dependencies]
@@ -42,6 +44,8 @@ dev = [
     "python-dotenv",
     "fastapi",
 ]
+snowflake = ["snowflake-connector-python"]
+bigquery  = ["google-cloud-bigquery"]
 
 [project.scripts]
 gx-mcp-server = "gx_mcp_server.__main__:main"

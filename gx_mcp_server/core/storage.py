@@ -1,20 +1,27 @@
 # gx_mcp_server/core/storage.py
+"""Storage backends for datasets and validation results."""
+
+from __future__ import annotations
+
+import threading
 import uuid
 from collections import OrderedDict
 from typing import Any
-import threading
 
 import pandas as pd
 
-# in-memory stores
+_MAX_ITEMS = 100
+
+# ---------------------------------------------------------------------------
+# In-memory implementation
+# ---------------------------------------------------------------------------
 _df_store: OrderedDict[str, pd.DataFrame] = OrderedDict()
 _result_store: OrderedDict[str, Any] = OrderedDict()
 _df_lock = threading.Lock()
 _result_lock = threading.Lock()
-_MAX_ITEMS = 100
 
 
-class DataStorage:
+class _InMemoryDataStorage:
     @staticmethod
     def add(df: pd.DataFrame) -> str:
         handle = str(uuid.uuid4())
@@ -43,6 +50,10 @@ class ValidationStorage:
     @classmethod
     def add(cls, result: Any) -> str:
         """Add a completed validation result and return its ID."""
+
+class _InMemoryValidationStorage:
+    @staticmethod
+    def add(result: Any) -> str:
         vid = str(uuid.uuid4())
         with _result_lock:
             if len(_result_store) >= _MAX_ITEMS:
@@ -71,3 +82,53 @@ class ValidationStorage:
         """Retrieve a stored validation result by ID."""
         with _result_lock:
             return _result_store[vid]
+
+
+# ---------------------------------------------------------------------------
+# Dynamic backend dispatch
+# ---------------------------------------------------------------------------
+_data_backend: type[_InMemoryDataStorage] | Any = _InMemoryDataStorage
+_validation_backend: type[_InMemoryValidationStorage] | Any = _InMemoryValidationStorage
+
+
+def configure_storage_backend(uri: str) -> None:
+    """Configure storage backend based on URI."""
+    global _data_backend, _validation_backend
+
+    if uri.startswith("sqlite:///"):
+        from gx_mcp_server.storage import sqlite_backend
+
+        sqlite_backend.initialize(uri)
+        _data_backend = sqlite_backend.DataStorage
+        _validation_backend = sqlite_backend.ValidationStorage
+    else:
+        _data_backend = _InMemoryDataStorage
+        _validation_backend = _InMemoryValidationStorage
+
+
+class DataStorage:
+    """Facade for the configured DataStorage backend."""
+
+    @staticmethod
+    def add(df: pd.DataFrame) -> str:
+        return _data_backend.add(df)
+
+    @staticmethod
+    def get(handle: str) -> pd.DataFrame:
+        return _data_backend.get(handle)
+
+    @staticmethod
+    def get_handle_path(handle: str) -> str:
+        return _data_backend.get_handle_path(handle)
+
+
+class ValidationStorage:
+    """Facade for the configured ValidationStorage backend."""
+
+    @staticmethod
+    def add(result: Any) -> str:
+        return _validation_backend.add(result)
+
+    @staticmethod
+    def get(vid: str) -> Any:
+        return _validation_backend.get(vid)
