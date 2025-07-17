@@ -40,6 +40,7 @@ dev = [
     "pandas-stubs",
     "openai",
     "python-dotenv",
+    "fastapi",
 ]
 
 [project.scripts]
@@ -83,11 +84,10 @@ python_functions = ["test_*"]
 addopts = "-v --tb=short"
 asyncio_mode = "auto"
 filterwarnings = [
-    # Suppress harmless warnings from Great Expectations
-    "ignore::marshmallow.warnings.ChangedInMarshmallow4Warning",
     "ignore:.*Number.*field should not be instantiated.*",
 ]
 
 [tool.ruff]
 # Complain about TODOs
+[tool.ruff.lint]
 extend-select = ["FIX002"]
