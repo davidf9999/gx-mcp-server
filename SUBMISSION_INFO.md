@@ -21,3 +21,39 @@ Exposes Great Expectations data-quality checks as MCP tools for LLM agents.
 ## Keywords / Tags
 
 `llm`, `agent`, `mcp`, `great-expectations`, `data-quality`, `data-validation`, `python`, `open-source`
+
+## Registry Submission Guide
+
+Use the following steps when submitting `gx-mcp-server` to popular MCP-related registries and GitHub "Awesome" lists. Reference the project details above for accurate names and links.
+
+### Submission Process
+
+1. **Fork** the target registry or Awesome list repository on GitHub.
+2. **Add** an entry for `gx-mcp-server` to the appropriate section of their `README.md`.
+3. **Commit** the change and open a Pull Request describing the addition.
+
+### PR Template
+
+```
+Subject: Add gx-mcp-server to the list
+
+Hello!
+
+I'd like to propose adding `gx-mcp-server`, a new open-source tool, to your awesome list under the **[suggest a category, e.g., "Data Validation" or "LLM Tooling"]** section.
+
+- **Name:** `gx-mcp-server`
+- **URL:** https://github.com/davidf9999/gx-mcp-server
+- **Description:** Exposes Great Expectations data-quality checks as MCP tools for LLM agents.
+
+This project helps developers integrate robust data validation into their LLM agent workflows, which I believe is a valuable addition for your community.
+
+Thank you for your consideration!
+```
+
+### Recommended Awesome Lists
+
+1. **awesome-great-expectations** – add the project in the **Community Contributed** section.
+2. **awesome-llm** – a section such as **Tools** or **LLM Tooling** fits well.
+3. **awesome-data-engineering** – place the entry in the **Data Validation** section.
+
+After opening your PR, monitor it for feedback and update your submission if requested.
