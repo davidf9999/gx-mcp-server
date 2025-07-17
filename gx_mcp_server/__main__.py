@@ -121,6 +121,8 @@ async def run_http(host: str, port: int, rate_limit: int, log_level: str) -> Non
     from fastmcp.utilities.cli import log_server_banner
     from slowapi import _rate_limit_exceeded_handler
     from slowapi.errors import RateLimitExceeded
+    from starlette.requests import Request
+    from starlette.responses import Response
     from slowapi.extension import Limiter
     from slowapi.middleware import SlowAPIMiddleware
     from slowapi.util import get_remote_address
@@ -150,7 +152,15 @@ async def run_http(host: str, port: int, rate_limit: int, log_level: str) -> Non
         middleware=middleware,
     )
     app.state.limiter = limiter
-    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    
+    # Create a wrapper function to match Starlette's expected signature
+    def rate_limit_handler(request: Request, exc: Exception) -> Response:
+        if isinstance(exc, RateLimitExceeded):
+            return _rate_limit_exceeded_handler(request, exc)
+        # This shouldn't happen since we only register for RateLimitExceeded
+        raise exc
+    
+    app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
 
     path = mcp_app.state.path.lstrip("/")
     log_server_banner(mcp, "http", host=host, port=port, path=path)
