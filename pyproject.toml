@@ -34,6 +34,7 @@ dependencies = [
     "opentelemetry-sdk>=1",
     "opentelemetry-exporter-otlp>=1",
     "opentelemetry-instrumentation-fastapi>=0.46",
+    "fastapi>=0.116.1",
 ]
 
 [project.optional-dependencies]
@@ -47,6 +48,7 @@ dev = [
     "pandas-stubs",
     "openai",
     "python-dotenv",
+    "fastapi",
 ]
 snowflake = ["snowflake-connector-python"]
 bigquery  = ["google-cloud-bigquery"]
@@ -92,8 +94,6 @@ python_functions = ["test_*"]
 addopts = "-v --tb=short"
 asyncio_mode = "auto"
 filterwarnings = [
-    # Suppress harmless warnings from Great Expectations
-    "ignore::marshmallow.warnings.ChangedInMarshmallow4Warning",
     "ignore:.*Number.*field should not be instantiated.*",
 ]
 
