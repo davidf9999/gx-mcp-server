@@ -38,8 +38,11 @@ class DataStorage:
 
 
 class ValidationStorage:
-    @staticmethod
-    def add(result: Any) -> str:
+    """Simple in-memory store for validation results."""
+
+    @classmethod
+    def add(cls, result: Any) -> str:
+        """Add a completed validation result and return its ID."""
         vid = str(uuid.uuid4())
         with _result_lock:
             if len(_result_store) >= _MAX_ITEMS:
@@ -47,8 +50,8 @@ class ValidationStorage:
             _result_store[vid] = result
         return vid
 
-    @staticmethod
-    def reserve() -> str:
+    @classmethod
+    def reserve(cls) -> str:
         """Reserve an ID for an asynchronous validation run."""
         vid = str(uuid.uuid4())
         with _result_lock:
@@ -57,13 +60,14 @@ class ValidationStorage:
             _result_store[vid] = {"status": "pending"}
         return vid
 
-    @staticmethod
-    def set(vid: str, result: Any) -> None:
+    @classmethod
+    def set(cls, vid: str, result: Any) -> None:
         """Store a validation result for a pre-reserved ID."""
         with _result_lock:
             _result_store[vid] = result
 
-    @staticmethod
-    def get(vid: str) -> Any:
+    @classmethod
+    def get(cls, vid: str) -> Any:
+        """Retrieve a stored validation result by ID."""
         with _result_lock:
             return _result_store[vid]
