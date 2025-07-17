@@ -44,13 +44,6 @@ class _InMemoryDataStorage:
         return path
 
 
-class ValidationStorage:
-    """Simple in-memory store for validation results."""
-
-    @classmethod
-    def add(cls, result: Any) -> str:
-        """Add a completed validation result and return its ID."""
-
 class _InMemoryValidationStorage:
     @staticmethod
     def add(result: Any) -> str:
@@ -132,3 +125,13 @@ class ValidationStorage:
     @staticmethod
     def get(vid: str) -> Any:
         return _validation_backend.get(vid)
+
+    @staticmethod
+    def reserve() -> str:
+        """Reserve an ID for an asynchronous validation run."""
+        return _validation_backend.reserve()
+
+    @staticmethod
+    def set(vid: str, result: Any) -> None:
+        """Store a validation result for a pre-reserved ID."""
+        _validation_backend.set(vid, result)
