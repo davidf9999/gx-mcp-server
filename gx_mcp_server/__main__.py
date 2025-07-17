@@ -13,12 +13,12 @@ import argparse
 import asyncio
 import os
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from gx_mcp_server.server import create_server
 
 if TYPE_CHECKING:  # pragma: no cover - only for type hints
-    from starlette.types import ASGIApp
+    pass
 
 
 def parse_args() -> argparse.Namespace:
@@ -115,13 +115,14 @@ async def run_stdio() -> None:
     await mcp.run_stdio_async()
 
 
-def setup_tracing(app: "ASGIApp") -> None:
+def setup_tracing(app: Any) -> None:
     """Configure OpenTelemetry tracing."""
     from opentelemetry import trace
     from opentelemetry.instrumentation.asgi import OpenTelemetryMiddleware
     from opentelemetry.sdk.resources import Resource
     from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export import BatchSpanProcessor, OTLPSpanExporter
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 
     resource = Resource.create({"service.name": "gx-mcp-server"})
     provider = TracerProvider(resource=resource)
