@@ -69,6 +69,12 @@ uv run python -m gx_mcp_server --http
 ```
 Allowed values: 1–1024 MB.
 
+## Metrics and Tracing
+
+- Prometheus metrics exposed on `--metrics-port` (default **9090**).
+- Enable OpenTelemetry tracing with `--trace`. When enabled, logs include
+  `OTEL_RESOURCE_ATTRIBUTES` and spans are exported via OTLP.
+
 ## Docker
 
 To build and run with Docker (Python and uv included):
