@@ -1,5 +1,6 @@
 # gx_mcp_server/logging.py
 import logging
+import os
 import warnings
 
 # Suppress Great Expectations Marshmallow warnings
@@ -27,10 +28,17 @@ warnings.filterwarnings(
 logger = logging.getLogger("gx_mcp_server")
 
 # Avoid adding multiple handlers when the module is imported repeatedly
+class _OTelFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:  # pragma: no cover - trivial
+        record.otel = os.getenv("OTEL_RESOURCE_ATTRIBUTES", "")
+        return True
+
+
 if not logger.handlers:
     handler = logging.StreamHandler()
+    handler.addFilter(_OTelFilter())
     handler.setFormatter(
-        logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+        logging.Formatter("%(asctime)s [%(levelname)s] %(name)s %(otel)s: %(message)s")
     )
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)

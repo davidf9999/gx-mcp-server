@@ -11,9 +11,15 @@ Supports multiple transport modes:
 
 import argparse
 import asyncio
+import os
 import sys
+from typing import TYPE_CHECKING, Any
+
 
 from gx_mcp_server.server import create_server
+
+if TYPE_CHECKING:  # pragma: no cover - only for type hints
+    pass
 
 
 def parse_args() -> argparse.Namespace:
@@ -85,19 +91,36 @@ Examples:
         help="Storage backend URI (default: memory). Use sqlite:///path/to/gx.db",
     )
 
+    parser.add_argument(
+        "--metrics-port",
+        type=int,
+        default=9090,
+        help="Port to expose Prometheus metrics (default: 9090)",
+    )
+    parser.add_argument(
+        "--trace",
+        action="store_true",
+        help="Enable OpenTelemetry tracing",
+    )
     return parser.parse_args()
 
 
 def setup_logging(level: str) -> None:
     """Configure logging for the application."""
     import logging
-    
+
+    class OTelFilter(logging.Filter):
+        def filter(self, record: logging.LogRecord) -> bool:  # pragma: no cover - trivial
+            record.otel = os.getenv("OTEL_RESOURCE_ATTRIBUTES", "")
+            return True
+
     # Configure root logger
     logging.basicConfig(
         level=getattr(logging, level),
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        format="%(asctime)s [%(levelname)s] %(name)s %(otel)s: %(message)s",
         handlers=[logging.StreamHandler(sys.stderr)],
     )
+    logging.getLogger().addFilter(OTelFilter())
     
     # Reduce noise from some libraries
     logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -115,8 +138,24 @@ async def run_stdio() -> None:
     await mcp.run_stdio_async()
 
 
-async def run_http(host: str, port: int, rate_limit: int, log_level: str) -> None:
-    """Run MCP server in HTTP mode with rate limiting and health endpoint."""
+def setup_tracing(app: Any) -> None:
+    """Configure OpenTelemetry tracing."""
+    from opentelemetry import trace
+    from opentelemetry.instrumentation.asgi import OpenTelemetryMiddleware
+    from opentelemetry.sdk.resources import Resource
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+
+    resource = Resource.create({"service.name": "gx-mcp-server"})
+    provider = TracerProvider(resource=resource)
+    provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
+    trace.set_tracer_provider(provider)
+    app.add_middleware(OpenTelemetryMiddleware)
+
+
+async def run_http(host: str, port: int, rate_limit: int, log_level: str, metrics_port: int, trace_enabled: bool) -> None:
+    """Run MCP server in HTTP mode with rate limiting, health endpoint, and optional metrics/tracing."""
     from gx_mcp_server import logger
     from fastmcp.utilities.cli import log_server_banner
     from slowapi import _rate_limit_exceeded_handler
@@ -143,6 +182,10 @@ async def run_http(host: str, port: int, rate_limit: int, log_level: str) -> Non
 
     # Build FastAPI app with health route mounted before MCP routes
     mcp_app = mcp.http_app()
+    
+    if trace_enabled:
+        setup_tracing(mcp_app)
+
     app = Starlette(
         lifespan=mcp_app.lifespan,
         routes=[
@@ -165,7 +208,14 @@ async def run_http(host: str, port: int, rate_limit: int, log_level: str) -> Non
     path = mcp_app.state.path.lstrip("/")
     log_server_banner(mcp, "http", host=host, port=port, path=path)
 
-    config = uvicorn.Config(
+    # Set up metrics on separate port
+    from prometheus_fastapi_instrumentator import Instrumentator
+    
+    instrumentator = Instrumentator().instrument(mcp_app)
+    metrics_app = Starlette()
+    instrumentator.expose(metrics_app, include_in_schema=False)
+
+    config_main = uvicorn.Config(
         app,
         host=host,
         port=port,
@@ -173,21 +223,17 @@ async def run_http(host: str, port: int, rate_limit: int, log_level: str) -> Non
         timeout_graceful_shutdown=0,
         lifespan="on",
     )
+    server_main = uvicorn.Server(config_main)
 
-    import uvicorn
+    config_metrics = uvicorn.Config(metrics_app, host=host, port=metrics_port, log_level="info")
+    server_metrics = uvicorn.Server(config_metrics)
 
-    config = uvicorn.Config(app, host=host, port=port, timeout_graceful_shutdown=0)
-    server = uvicorn.Server(config)
-    await server.serve()
+    logger.info(f"Metrics available at http://{host}:{metrics_port}/metrics")
+
+    await asyncio.gather(server_main.serve(), server_metrics.serve())
 
 
-def show_inspector_instructions(
-    host: str,
-    port: int,
-    rate_limit: int,
-    log_level: str,
-    token: str | None = None,
-) -> None:
+def show_inspector_instructions(host: str, port: int) -> None:
     """Run MCP server with inspector for development."""
     from gx_mcp_server import logger
     
@@ -196,18 +242,18 @@ def show_inspector_instructions(
     logger.info("To use the MCP Inspector with this server:")
     logger.info("1. Start this server in HTTP mode: python -m gx_mcp_server --http")
     logger.info("2. In another terminal, run: npx @modelcontextprotocol/inspector")
-    url = f"http://{host}:{port}"
-    if token:
-        url += f"?token={token}"
-    logger.info(f"3. Connect the inspector to {url}")
+    logger.info("3. Connect the inspector to http://localhost:8000")
     
     # For now, run the server in HTTP mode as a fallback
-    asyncio.run(run_http(host, port, rate_limit, log_level))
+    mcp = create_server()
+    asyncio.run(mcp.run_http_async(host=host, port=port))
 
 
 def main() -> None:
     """Main entry point."""
     args = parse_args()
+    if args.trace:
+        os.environ.setdefault("OTEL_RESOURCE_ATTRIBUTES", "service.name=gx-mcp-server")
     setup_logging(args.log_level)
     from gx_mcp_server.core import storage
 
@@ -216,16 +262,10 @@ def main() -> None:
     try:
         if args.inspect:
             # Inspector mode (synchronous)
-            show_inspector_instructions(
-                args.host,
-                args.port,
-                args.rate_limit,
-                args.log_level,
-                args.inspector_auth,
-            )
+            show_inspector_instructions(args.host, args.port)
         elif args.http:
             # HTTP mode (async)
-            asyncio.run(run_http(args.host, args.port, args.rate_limit, args.log_level))
+            asyncio.run(run_http(args.host, args.port, args.rate_limit, args.log_level, args.metrics_port, args.trace))
         else:
             # STDIO mode (async, default)
             asyncio.run(run_stdio())

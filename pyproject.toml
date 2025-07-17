@@ -30,6 +30,10 @@ dependencies = [
     "slowapi>=0.1.9",
     # Optional streaming support
     "polars>=0.20",
+    "prometheus-fastapi-instrumentator>=7",
+    "opentelemetry-sdk>=1",
+    "opentelemetry-exporter-otlp>=1",
+    "opentelemetry-instrumentation-fastapi>=0.46",
 ]
 
 [project.optional-dependencies]
@@ -89,9 +93,10 @@ addopts = "-v --tb=short"
 asyncio_mode = "auto"
 filterwarnings = [
     # Suppress harmless warnings from Great Expectations
+    "ignore::marshmallow.warnings.ChangedInMarshmallow4Warning",
     "ignore:.*Number.*field should not be instantiated.*",
 ]
 
-[tool.ruff]
+[tool.ruff.lint]
 # Complain about TODOs
 extend-select = ["FIX002"]

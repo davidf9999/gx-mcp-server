@@ -109,6 +109,12 @@ load_dataset("bigquery://my-project/dataset/table")
 `load_dataset` automatically detects these prefixes and delegates to the
 appropriate connector.
 
+## Metrics and Tracing
+
+- Prometheus metrics exposed on `--metrics-port` (default **9090**).
+- Enable OpenTelemetry tracing with `--trace`. When enabled, logs include
+  `OTEL_RESOURCE_ATTRIBUTES` and spans are exported via OTLP.
+
 ## Docker
 
 To build and run with Docker (Python and uv included):
