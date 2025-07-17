@@ -78,6 +78,13 @@ Examples:
         help="Requests per minute limit for HTTP server (default: 60)",
     )
 
+    parser.add_argument(
+        "--storage-backend",
+        type=str,
+        default="memory",
+        help="Storage backend URI (default: memory). Use sqlite:///path/to/gx.db",
+    )
+
     return parser.parse_args()
 
 
@@ -131,6 +138,8 @@ async def run_http(host: str, port: int, rate_limit: int, log_level: str) -> Non
         default_limits=[f"{rate_limit}/minute"],
     )
     middleware = [Middleware(SlowAPIMiddleware)]
+
+    # Build FastAPI app with health route mounted before MCP routes
     mcp_app = mcp.http_app()
     app = Starlette(
         lifespan=mcp_app.lifespan,
@@ -154,6 +163,10 @@ async def run_http(host: str, port: int, rate_limit: int, log_level: str) -> Non
         timeout_graceful_shutdown=0,
         lifespan="on",
     )
+
+    import uvicorn
+
+    config = uvicorn.Config(app, host=host, port=port, timeout_graceful_shutdown=0)
     server = uvicorn.Server(config)
     await server.serve()
 
@@ -186,6 +199,9 @@ def main() -> None:
     """Main entry point."""
     args = parse_args()
     setup_logging(args.log_level)
+    from gx_mcp_server.core import storage
+
+    storage.configure_storage_backend(args.storage_backend)
     
     try:
         if args.inspect:

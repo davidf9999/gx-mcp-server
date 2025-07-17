@@ -8,8 +8,10 @@ def test_load_and_handle():
     df = pd.DataFrame({"a": [1, 2, 3]})
     csv = df.to_csv(index=False)
     # call the underlying function
-    res = load_dataset(source=csv, source_type="inline")
+    res = load_dataset(source=csv, source_type="inline", max_rows=2)
     assert isinstance(res.handle, str)
+    loaded = DataStorage.get(res.handle)
+    assert len(loaded) == 2
 
 
 def test_load_empty_csv():

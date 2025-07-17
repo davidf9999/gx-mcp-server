@@ -24,11 +24,13 @@ Large Language Model (LLM) agents often need to interact with and validate data.
 - **Run server:** `uv run python -m gx_mcp_server --http`
 - **Try examples:** `uv run python scripts/run_examples.py`
 - **Test:** `uv run pytest`
+- **Convenience tasks:** `just install`, `just lint`, `just test`, `just serve`
 - **Default CSV limit:** 50 MB (`MCP_CSV_SIZE_LIMIT_MB` to change)
 
 ## Features
 
 - Load CSV data from file, URL, or inline
+- Load tables from Snowflake or BigQuery using URI prefixes
 - Define and modify ExpectationSuites
 - Validate data and fetch detailed results
 - Multiple transport modes: STDIO, HTTP, Inspector (GUI)
@@ -41,6 +43,8 @@ uv pip install -e ".[dev]"
 cp .env.example .env  # (optional: add your OpenAI API key)
 uv run python scripts/run_examples.py
 ```
+You can also use `just install` to set up the environment and `just serve` to
+start the HTTP server.
 
 ## Usage
 
@@ -65,10 +69,16 @@ Default is 60 requests per minute.
   uv run python -m gx_mcp_server --http --host 127.0.0.1
   ```
 
+- **HTTP mode (localhost only):**
+  ```bash
+  uv run python -m gx_mcp_server --http --host 127.0.0.1
+  ```
+
 - **Inspector GUI:**
   ```bash
+  uv run python -m gx_mcp_server --inspect [--inspector-auth <token>]
   npx @modelcontextprotocol/inspector
-  # Connect to: http://localhost:8000/mcp/
+  # Connect to: http://localhost:8000/mcp/  # append ?token=<token> if auth enabled
   ```
 
 ## Configuring Maximum CSV File Size
@@ -79,6 +89,25 @@ export MCP_CSV_SIZE_LIMIT_MB=200  # Allow up to 200 MB
 uv run python -m gx_mcp_server --http
 ```
 Allowed values: 1–1024 MB.
+
+## Warehouse Connectors
+
+Install extras to enable Snowflake or BigQuery support:
+
+```bash
+uv pip install -e .[snowflake]
+uv pip install -e .[bigquery]
+```
+
+Then load tables directly using URIs:
+
+```python
+load_dataset("snowflake://user:pass@account/db/schema/table?warehouse=WH")
+load_dataset("bigquery://my-project/dataset/table")
+```
+
+`load_dataset` automatically detects these prefixes and delegates to the
+appropriate connector.
 
 ## Docker
 
@@ -114,6 +143,7 @@ uv run ruff check .
 uv run mypy gx_mcp_server/
 uv run pytest
 ```
+These steps can also be executed via `just lint` and `just test`.
 
 ## Telemetry
 
@@ -128,6 +158,9 @@ Set `GX_ANALYTICS_ENABLED=false` to disable telemetry.
 - **No resource cleanup:** Large/long sessions may use significant RAM.
 - **Concurrency:** Blocking/serial; no job queue or async.
 - **API may change:** Expect early-breaking changes.
+
+We are actively working on these limitations! Please [open an issue](https://github.com/davidf9999/gx-mcp-server/issues) 
+if you have feedback or feature requests.
 
 ## Project Roadmap
 

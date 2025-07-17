@@ -1,12 +1,15 @@
 from gx_mcp_server.tools.datasets import load_dataset
 from gx_mcp_server.tools.expectations import add_expectation, create_suite
 from gx_mcp_server.tools.validation import get_validation_result, run_checkpoint
+from gx_mcp_server.core.storage import DataStorage
 
 
 def test_load_dataset():
     csv_data = "col1,col2\n1,a\n2,b"
-    result = load_dataset(source=csv_data, source_type="inline")
+    result = load_dataset(source=csv_data, source_type="inline", max_rows=1)
     assert result.handle is not None
+    df = DataStorage.get(result.handle)
+    assert len(df) == 1
 
 
 def test_create_suite():
