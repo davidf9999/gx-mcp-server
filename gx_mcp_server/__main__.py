@@ -41,6 +41,14 @@ Examples:
         action="store_true", 
         help="Run with MCP Inspector for development/testing",
     )
+
+    parser.add_argument(
+        "--inspector-auth",
+        metavar="TOKEN",
+        type=str,
+        default=None,
+        help="Authentication token for the Inspector",
+    )
     
     parser.add_argument(
         "--port",
@@ -62,7 +70,14 @@ Examples:
         default="INFO",
         help="Logging level (default: INFO)",
     )
-    
+
+    parser.add_argument(
+        "--storage-backend",
+        type=str,
+        default="memory",
+        help="Storage backend URI (default: memory). Use sqlite:///path/to/gx.db",
+    )
+
     return parser.parse_args()
 
 
@@ -96,15 +111,31 @@ async def run_stdio() -> None:
 async def run_http(host: str, port: int) -> None:
     """Run MCP server in HTTP mode."""
     from gx_mcp_server import logger
-    
+    from starlette.applications import Starlette
+    from starlette.routing import Mount, Route
+    from gx_mcp_server.tools.health import health
+
     logger.info(f"Starting GX MCP Server in HTTP mode on {host}:{port}")
     mcp = create_server()
-    
-    # Run the server in HTTP mode
-    await mcp.run_http_async(host=host, port=port)
+
+    # Build FastAPI app with health route mounted before MCP routes
+    mcp_app = mcp.http_app()
+    app = Starlette(
+        lifespan=mcp_app.lifespan,
+        routes=[
+            Route("/mcp/health", health, methods=["GET"], name="health"),
+            Mount("/", mcp_app),
+        ],
+    )
+
+    import uvicorn
+
+    config = uvicorn.Config(app, host=host, port=port, timeout_graceful_shutdown=0)
+    server = uvicorn.Server(config)
+    await server.serve()
 
 
-def show_inspector_instructions(host: str, port: int) -> None:
+def show_inspector_instructions(host: str, port: int, token: str | None = None) -> None:
     """Run MCP server with inspector for development."""
     from gx_mcp_server import logger
     
@@ -113,7 +144,10 @@ def show_inspector_instructions(host: str, port: int) -> None:
     logger.info("To use the MCP Inspector with this server:")
     logger.info("1. Start this server in HTTP mode: python -m gx_mcp_server --http")
     logger.info("2. In another terminal, run: npx @modelcontextprotocol/inspector")
-    logger.info("3. Connect the inspector to http://localhost:8000")
+    url = f"http://{host}:{port}"
+    if token:
+        url += f"?token={token}"
+    logger.info(f"3. Connect the inspector to {url}")
     
     # For now, run the server in HTTP mode as a fallback
     mcp = create_server()
@@ -124,11 +158,14 @@ def main() -> None:
     """Main entry point."""
     args = parse_args()
     setup_logging(args.log_level)
+    from gx_mcp_server.core import storage
+
+    storage.configure_storage_backend(args.storage_backend)
     
     try:
         if args.inspect:
             # Inspector mode (synchronous)
-            show_inspector_instructions(args.host, args.port)
+            show_inspector_instructions(args.host, args.port, args.inspector_auth)
         elif args.http:
             # HTTP mode (async)
             asyncio.run(run_http(args.host, args.port))

@@ -42,6 +42,8 @@ dev = [
     "python-dotenv",
     "fastapi",
 ]
+snowflake = ["snowflake-connector-python"]
+bigquery  = ["google-cloud-bigquery"]
 
 [project.scripts]
 gx-mcp-server = "gx_mcp_server.__main__:main"
