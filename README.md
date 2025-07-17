@@ -151,6 +151,10 @@ Set `GX_ANALYTICS_ENABLED=false` to disable telemetry.
 We are actively working on these limitations! Please [open an issue](https://github.com/davidf9999/gx-mcp-server/issues) 
 if you have feedback or feature requests.
 
+## Project Roadmap
+
+See [ROADMAP-v2.md](ROADMAP-v2.md) for upcoming sprints and priority labels.
+
 ## License & Contributing
 
 MIT License. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to help!
