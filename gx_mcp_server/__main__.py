@@ -11,9 +11,14 @@ Supports multiple transport modes:
 
 import argparse
 import asyncio
+import os
 import sys
+from typing import TYPE_CHECKING
 
 from gx_mcp_server.server import create_server
+
+if TYPE_CHECKING:  # pragma: no cover - only for type hints
+    from starlette.types import ASGIApp
 
 
 def parse_args() -> argparse.Namespace:
@@ -62,6 +67,17 @@ Examples:
         default="INFO",
         help="Logging level (default: INFO)",
     )
+    parser.add_argument(
+        "--metrics-port",
+        type=int,
+        default=9090,
+        help="Port to expose Prometheus metrics (default: 9090)",
+    )
+    parser.add_argument(
+        "--trace",
+        action="store_true",
+        help="Enable OpenTelemetry tracing",
+    )
     
     return parser.parse_args()
 
@@ -69,13 +85,19 @@ Examples:
 def setup_logging(level: str) -> None:
     """Configure logging for the application."""
     import logging
-    
+
+    class OTelFilter(logging.Filter):
+        def filter(self, record: logging.LogRecord) -> bool:  # pragma: no cover - trivial
+            record.otel = os.getenv("OTEL_RESOURCE_ATTRIBUTES", "")
+            return True
+
     # Configure root logger
     logging.basicConfig(
         level=getattr(logging, level),
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        format="%(asctime)s [%(levelname)s] %(name)s %(otel)s: %(message)s",
         handlers=[logging.StreamHandler(sys.stderr)],
     )
+    logging.getLogger().addFilter(OTelFilter())
     
     # Reduce noise from some libraries
     logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -93,15 +115,49 @@ async def run_stdio() -> None:
     await mcp.run_stdio_async()
 
 
-async def run_http(host: str, port: int) -> None:
+def setup_tracing(app: "ASGIApp") -> None:
+    """Configure OpenTelemetry tracing."""
+    from opentelemetry import trace
+    from opentelemetry.instrumentation.asgi import OpenTelemetryMiddleware
+    from opentelemetry.sdk.resources import Resource
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor, OTLPSpanExporter
+
+    resource = Resource.create({"service.name": "gx-mcp-server"})
+    provider = TracerProvider(resource=resource)
+    provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
+    trace.set_tracer_provider(provider)
+    app.add_middleware(OpenTelemetryMiddleware)
+
+
+async def run_http(host: str, port: int, metrics_port: int, trace_enabled: bool) -> None:
     """Run MCP server in HTTP mode."""
     from gx_mcp_server import logger
-    
+
     logger.info(f"Starting GX MCP Server in HTTP mode on {host}:{port}")
     mcp = create_server()
-    
-    # Run the server in HTTP mode
-    await mcp.run_http_async(host=host, port=port)
+    app = mcp.http_app()
+
+    if trace_enabled:
+        setup_tracing(app)
+
+    from prometheus_fastapi_instrumentator import Instrumentator
+    from starlette.applications import Starlette
+    instrumentator = Instrumentator().instrument(app)
+    metrics_app = Starlette()
+    instrumentator.expose(metrics_app, include_in_schema=False)
+
+    import uvicorn
+
+    config_main = uvicorn.Config(app, host=host, port=port, timeout_graceful_shutdown=0)
+    server_main = uvicorn.Server(config_main)
+
+    config_metrics = uvicorn.Config(metrics_app, host=host, port=metrics_port, log_level="info")
+    server_metrics = uvicorn.Server(config_metrics)
+
+    logger.info(f"Metrics available at http://{host}:{metrics_port}/metrics")
+
+    await asyncio.gather(server_main.serve(), server_metrics.serve())
 
 
 def show_inspector_instructions(host: str, port: int) -> None:
@@ -123,6 +179,8 @@ def show_inspector_instructions(host: str, port: int) -> None:
 def main() -> None:
     """Main entry point."""
     args = parse_args()
+    if args.trace:
+        os.environ.setdefault("OTEL_RESOURCE_ATTRIBUTES", "service.name=gx-mcp-server")
     setup_logging(args.log_level)
     
     try:
@@ -131,7 +189,7 @@ def main() -> None:
             show_inspector_instructions(args.host, args.port)
         elif args.http:
             # HTTP mode (async)
-            asyncio.run(run_http(args.host, args.port))
+            asyncio.run(run_http(args.host, args.port, args.metrics_port, args.trace))
         else:
             # STDIO mode (async, default)
             asyncio.run(run_stdio())
