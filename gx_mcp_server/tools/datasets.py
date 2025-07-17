@@ -13,6 +13,9 @@ try:
 except Exception:  # pragma: no cover - polars optional
     HAS_POLARS = False
 
+from gx_mcp_server.connectors import bigquery as bigquery_conn
+from gx_mcp_server.connectors import snowflake as snowflake_conn
+
 from gx_mcp_server.logging import logger
 from gx_mcp_server.core import schema, storage
 
@@ -67,6 +70,24 @@ def load_dataset(
     LIMIT_BYTES = get_csv_size_limit_bytes()
     limit_mb = LIMIT_BYTES // (1024 * 1024)
     try:
+        if source.startswith("snowflake://"):
+            df = snowflake_conn.load(source)
+            handle = storage.DataStorage.add(df)
+            logger.info(
+                "Loaded dataset from Snowflake handle=%s (shape=%s)",
+                handle,
+                df.shape,
+            )
+            return schema.DatasetHandle(handle=handle)
+        if source.startswith("bigquery://"):
+            df = bigquery_conn.load(source)
+            handle = storage.DataStorage.add(df)
+            logger.info(
+                "Loaded dataset from BigQuery handle=%s (shape=%s)",
+                handle,
+                df.shape,
+            )
+            return schema.DatasetHandle(handle=handle)
         # Reject large inline payloads
         if source_type == "inline" and len(source.encode("utf-8")) > LIMIT_BYTES:
             logger.warning(
