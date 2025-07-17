@@ -54,8 +54,19 @@ start the HTTP server.
   ```
 
 - **HTTP mode:** For browser and API clients
+```bash
+uv run python -m gx_mcp_server --http
+```
+
+*Requests per minute limit*
+```bash
+uv run python -m gx_mcp_server --http --rate-limit 30
+```
+Default is 60 requests per minute.
+
+- **HTTP mode (localhost only):**
   ```bash
-  uv run python -m gx_mcp_server --http
+  uv run python -m gx_mcp_server --http --host 127.0.0.1
   ```
 
 - **HTTP mode (localhost only):**

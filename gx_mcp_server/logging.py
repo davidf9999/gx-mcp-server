@@ -8,9 +8,19 @@ warnings.filterwarnings(
     message=".*Number.*field should not be instantiated.*",
     category=UserWarning
 )
+try:
+    marshmallow_warnings = __import__(
+        "marshmallow.warnings", fromlist=["ChangedInMarshmallow4Warning"]
+    )
+    marshmallow_warning = getattr(
+        marshmallow_warnings, "ChangedInMarshmallow4Warning", UserWarning
+    )
+except Exception:  # pragma: no cover - optional dependency may be absent
+    marshmallow_warning = UserWarning
+
 warnings.filterwarnings(
     "ignore",
-    category=getattr(__import__("marshmallow.warnings", fromlist=["ChangedInMarshmallow4Warning"]), "ChangedInMarshmallow4Warning", UserWarning)
+    category=marshmallow_warning,
 )
 
 # Configure logger
