@@ -27,6 +27,13 @@ dependencies = [
     "great-expectations>=0.17",
     "pydantic>=1",
     "requests>=2.28",
+    "slowapi>=0.1.9",
+    # Optional streaming support
+    "polars>=0.20",
+    "prometheus-fastapi-instrumentator>=7",
+    "opentelemetry-sdk>=1",
+    "opentelemetry-exporter-otlp>=1",
+    "opentelemetry-instrumentation-fastapi>=0.46",
 ]
 
 [project.optional-dependencies]
@@ -42,6 +49,8 @@ dev = [
     "python-dotenv",
     "fastapi",
 ]
+snowflake = ["snowflake-connector-python"]
+bigquery  = ["google-cloud-bigquery"]
 
 [project.scripts]
 gx-mcp-server = "gx_mcp_server.__main__:main"
@@ -87,7 +96,6 @@ filterwarnings = [
     "ignore:.*Number.*field should not be instantiated.*",
 ]
 
-[tool.ruff]
-# Complain about TODOs
 [tool.ruff.lint]
+# Complain about TODOs
 extend-select = ["FIX002"]
