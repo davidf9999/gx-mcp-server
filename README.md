@@ -6,7 +6,7 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gx-mcp-server)](https://pypi.org/project/gx-mcp-server)
 [![Docker Hub](https://img.shields.io/docker/pulls/davidf9999/gx-mcp-server.svg)](https://hub.docker.com/r/davidf9999/gx-mcp-server)
 [![License](https://img.shields.io/github/license/davidf9999/gx-mcp-server)](LICENSE)
-[![CI](https://github.com/davidf9999/gx-mcp-server/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/davidf9999/gx-mcp-server/actions/workflows/ci.yaml)
+[![CI](https://github.com/davidf9999/gx-mcp-server/actions/workflows/ci.yaml/badge.svg?branch=dev)](https://github.com/davidf9999/gx-mcp-server/actions/workflows/ci.yaml)
 [![Publish](https://github.com/davidf9999/gx-mcp-server/actions/workflows/publish.yaml/badge.svg)](https://github.com/davidf9999/gx-mcp-server/actions/workflows/publish.yaml)
 
 ## Motivation
@@ -20,11 +20,11 @@ Large Language Model (LLM) agents often need to interact with and validate data.
 
 ## TL;DR
 
-- **Install:** `uv sync && uv pip install -e .[dev]`
-- **Run server:** `uv run python -m gx_mcp_server --http`
-- **Try examples:** `uv run python scripts/run_examples.py`
-- **Test:** `uv run pytest`
-- **Convenience tasks:** `just install`, `just lint`, `just test`, `just serve`
+- **Install:** `just install`
+- **Run server:** `just serve`
+- **Try examples:** `just run-examples`
+- **Test:** `just test`
+- **Lint and type-check:** `just ci`
 - **Default CSV limit:** 50 MB (`MCP_CSV_SIZE_LIMIT_MB` to change)
 
 ## Features
@@ -38,13 +38,10 @@ Large Language Model (LLM) agents often need to interact with and validate data.
 ## Quickstart
 
 ```bash
-uv sync
-uv pip install -e ".[dev]"
+just install
 cp .env.example .env  # (optional: add your OpenAI API key)
-uv run python scripts/run_examples.py
+just run-examples
 ```
-You can also use `just install` to set up the environment and `just serve` to
-start the HTTP server.
 
 ## Usage
 
@@ -55,7 +52,7 @@ start the HTTP server.
 
 - **HTTP mode:** For browser and API clients
 ```bash
-uv run python -m gx_mcp_server --http
+just serve
 # add basic auth (e.g., user "admin" with password "secret")
 uv run python -m gx_mcp_server --http --basic-auth admin:secret
 ```
@@ -83,7 +80,7 @@ Default is 60 requests per minute.
 The server limits CSV files to **50 MB** by default. Override with:
 ```bash
 export MCP_CSV_SIZE_LIMIT_MB=200  # Allow up to 200 MB
-uv run python -m gx_mcp_server --http
+just serve
 ```
 Allowed values: 1–1024 MB.
 
@@ -117,14 +114,14 @@ appropriate connector.
 To build and run with Docker (Python and uv included):
 
 ```bash
-docker build -t gx-mcp-server .
-docker run --rm -p 8000:8000 gx-mcp-server
+just docker-build
+just docker-run
 ```
 
 Run the test suite inside the container:
 
 ```bash
-docker run --rm gx-mcp-server uv run pytest
+just docker-test
 ```
 
 ## Examples
@@ -139,14 +136,10 @@ All PRs and pushes are tested automatically via [GitHub Actions](https://github.
 - Type check: `mypy`
 - Test: `pytest`
 
-To check locally:
+To run all checks locally:
 ```bash
-uv run pre-commit run --all-files
-uv run ruff check .
-uv run mypy gx_mcp_server/
-uv run pytest
+just ci
 ```
-These steps can also be executed via `just lint` and `just test`.
 
 ## Telemetry
 
