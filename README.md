@@ -175,3 +175,10 @@ See [ROADMAP-v2.md](ROADMAP-v2.md) for upcoming sprints and priority labels.
 ## License & Contributing
 
 MIT License. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to help!
+
+## Author
+
+David Front
+- Email: dfront@gmail.com
+- GitHub: [davidf9999](https://github.com/davidf9999)
+- LinkedIn: [david-front](https://www.linkedin.com/in/david-front/)
