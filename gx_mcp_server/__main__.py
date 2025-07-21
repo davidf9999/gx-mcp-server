@@ -67,7 +67,7 @@ Examples:
         "--host",
         type=str,
         default="localhost",
-        help="Host for HTTP server (default: localhost)",
+        help="Host for HTTP server (default: 127.0.0.1)",
     )
     
     parser.add_argument(
@@ -106,6 +106,13 @@ Examples:
         "--basic-auth",
         metavar="USER:PASS",
         help="Require HTTP Basic auth with given credentials",
+    )
+
+    parser.add_argument(
+        "--allowed-origins",
+        metavar="ORIGIN",
+        nargs="*",
+        help="Allowed origins for CORS",
     )
 
     return parser.parse_args()
@@ -160,7 +167,7 @@ def setup_tracing(app: Any) -> None:
     app.add_middleware(OpenTelemetryMiddleware)
 
 
-async def run_http(host: str, port: int, rate_limit: int, log_level: str, metrics_port: int, trace_enabled: bool, basic_auth: str | None = None) -> None:
+async def run_http(host: str, port: int, rate_limit: int, log_level: str, metrics_port: int, trace_enabled: bool, basic_auth: str | None = None, allowed_origins: list[str] | None = None) -> None:
     """Run MCP server in HTTP mode with rate limiting, health endpoint, and optional metrics/tracing."""
     from gx_mcp_server import logger
     from fastmcp.utilities.cli import log_server_banner
@@ -294,7 +301,7 @@ def main() -> None:
             show_inspector_instructions(args.host, args.port, args.basic_auth)
         elif args.http:
             # HTTP mode (async)
-            asyncio.run(run_http(args.host, args.port, args.rate_limit, args.log_level, args.metrics_port, args.trace, args.basic_auth))
+            asyncio.run(run_http(args.host, args.port, args.rate_limit, args.log_level, args.metrics_port, args.trace, args.basic_auth, args.allowed_origins))
         else:
             # STDIO mode (async, default)
             asyncio.run(run_stdio())

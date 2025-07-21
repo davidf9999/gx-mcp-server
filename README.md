@@ -158,6 +158,10 @@ Set `GX_ANALYTICS_ENABLED=false` to disable telemetry.
 We are actively working on these limitations! Please [open an issue](https://github.com/davidf9999/gx-mcp-server/issues) 
 if you have feedback or feature requests.
 
+## Security
+
+For production deployments, it is strongly recommended to run the server behind a reverse proxy (e.g., Nginx, Caddy, or a cloud load balancer) to handle TLS/HTTPS termination. This ensures that all communication between clients and the server is encrypted.
+
 ## Project Roadmap
 
 See [ROADMAP-v2.md](ROADMAP-v2.md) for upcoming sprints and priority labels.
