@@ -97,6 +97,17 @@ Examples:
         default=9090,
         help="Port to expose Prometheus metrics (default: 9090)",
     )
+
+    parser.add_argument(
+        "--ssl-certfile",
+        metavar="PATH",
+        help="TLS certificate file for HTTPS",
+    )
+    parser.add_argument(
+        "--ssl-keyfile",
+        metavar="PATH",
+        help="TLS private key file for HTTPS",
+    )
     parser.add_argument(
         "--trace",
         action="store_true",
@@ -106,6 +117,27 @@ Examples:
         "--basic-auth",
         metavar="USER:PASS",
         help="Require HTTP Basic auth with given credentials",
+    )
+
+    parser.add_argument(
+        "--bearer-public-key-file",
+        metavar="PATH",
+        help="Path to RSA public key for Bearer auth",
+    )
+    parser.add_argument(
+        "--bearer-jwks",
+        metavar="URL",
+        help="JWKS URL for Bearer auth",
+    )
+    parser.add_argument(
+        "--bearer-issuer",
+        metavar="ISS",
+        help="Expected issuer for Bearer tokens",
+    )
+    parser.add_argument(
+        "--bearer-audience",
+        metavar="AUD",
+        help="Expected audience for Bearer tokens",
     )
 
     parser.add_argument(
@@ -167,7 +199,22 @@ def setup_tracing(app: Any) -> None:
     app.add_middleware(OpenTelemetryMiddleware)
 
 
-async def run_http(host: str, port: int, rate_limit: int, log_level: str, metrics_port: int, trace_enabled: bool, basic_auth: str | None = None, allowed_origins: list[str] | None = None) -> None:
+async def run_http(
+    host: str,
+    port: int,
+    rate_limit: int,
+    log_level: str,
+    metrics_port: int,
+    trace_enabled: bool,
+    basic_auth: str | None = None,
+    allowed_origins: list[str] | None = None,
+    ssl_certfile: str | None = None,
+    ssl_keyfile: str | None = None,
+    bearer_public_key_file: str | None = None,
+    bearer_jwks: str | None = None,
+    bearer_issuer: str | None = None,
+    bearer_audience: str | None = None,
+) -> None:
     """Run MCP server in HTTP mode with rate limiting, health endpoint, and optional metrics/tracing."""
     from gx_mcp_server import logger
     from fastmcp.utilities.cli import log_server_banner
@@ -185,13 +232,36 @@ async def run_http(host: str, port: int, rate_limit: int, log_level: str, metric
     import uvicorn
 
     logger.info(f"Starting GX MCP Server in HTTP mode on {host}:{port}")
-    mcp = create_server()
+
+    auth_provider = None
+    if bearer_public_key_file or bearer_jwks:
+        from fastmcp.server.auth.providers.bearer import BearerAuthProvider
+
+        public_key = None
+        if bearer_public_key_file:
+            with open(bearer_public_key_file, "r", encoding="utf-8") as f:
+                public_key = f.read()
+        auth_provider = BearerAuthProvider(
+            public_key=public_key,
+            jwks_uri=bearer_jwks,
+            issuer=bearer_issuer,
+            audience=bearer_audience,
+        )
+
+    mcp = create_server(auth_provider)
 
     limiter = Limiter(
         key_func=get_remote_address,
         default_limits=[f"{rate_limit}/minute"],
     )
     middleware = [Middleware(SlowAPIMiddleware)]
+
+    if allowed_origins:
+        from gx_mcp_server.origin_validator import OriginValidatorMiddleware
+
+        middleware.append(
+            Middleware(OriginValidatorMiddleware, allowed_origins=allowed_origins)
+        )
 
     if basic_auth:
         from gx_mcp_server.basic_auth import BasicAuthMiddleware
@@ -245,6 +315,8 @@ async def run_http(host: str, port: int, rate_limit: int, log_level: str, metric
         log_level=log_level.lower(),
         timeout_graceful_shutdown=0,
         lifespan="on",
+        ssl_certfile=ssl_certfile,
+        ssl_keyfile=ssl_keyfile,
     )
     server_main = uvicorn.Server(config_main)
 
@@ -301,7 +373,24 @@ def main() -> None:
             show_inspector_instructions(args.host, args.port, args.basic_auth)
         elif args.http:
             # HTTP mode (async)
-            asyncio.run(run_http(args.host, args.port, args.rate_limit, args.log_level, args.metrics_port, args.trace, args.basic_auth, args.allowed_origins))
+            asyncio.run(
+                run_http(
+                    args.host,
+                    args.port,
+                    args.rate_limit,
+                    args.log_level,
+                    args.metrics_port,
+                    args.trace,
+                    args.basic_auth,
+                    args.allowed_origins,
+                    args.ssl_certfile,
+                    args.ssl_keyfile,
+                    args.bearer_public_key_file,
+                    args.bearer_jwks,
+                    args.bearer_issuer,
+                    args.bearer_audience,
+                )
+            )
         else:
             # STDIO mode (async, default)
             asyncio.run(run_stdio())
