@@ -109,13 +109,6 @@ def run_examples():
         env = os.environ.copy()
         if "ai_expectation" in example_file and "OPENAI_API_KEY" not in env:
             env["OPENAI_API_KEY"] = "sk-dummy-for-testing"
-        
-        # Ensure manual_test.py runs in client mode
-        if "manual_test.py" in example_file:
-            env["RUNNING_STANDALONE_TEST"] = "false"
-        else:
-            # For other scripts, ensure it's not set or is false
-            env["RUNNING_STANDALONE_TEST"] = "false"
 
         result = subprocess.run(["uv", "run", "python", example_file], capture_output=True, text=True, env=env)
 
