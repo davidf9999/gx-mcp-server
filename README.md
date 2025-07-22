@@ -33,6 +33,12 @@ Large Language Model (LLM) agents often need to interact with and validate data.
 - Load tables from Snowflake or BigQuery using URI prefixes
 - Define and modify ExpectationSuites
 - Validate data and fetch detailed results
+- Run validations synchronously or in the background
+- Choose in-memory or SQLite storage for datasets and results
+- Optional Basic or Bearer token authentication for HTTP clients
+- Configure HTTP rate limiting per minute
+- Restrict origins with `--allowed-origins`
+- Prometheus metrics and OpenTelemetry tracing support
 - Multiple transport modes: STDIO, HTTP, Inspector (GUI)
 
 ## Quickstart
@@ -146,21 +152,22 @@ just ci
 Great Expectations sends anonymous usage data to `posthog.greatexpectations.io` by default.
 Set `GX_ANALYTICS_ENABLED=false` to disable telemetry.
 
-## Future Work & Known Limitations
+## Current Limitations
 
-- **No persistent storage:** Data is in-memory; lost on restart.
-- **Optional basic auth:** Use `--basic-auth user:pass` to require credentials.
-- **No URL restrictions:** Use only in trusted environments.
-- **No resource cleanup:** Large/long sessions may use significant RAM.
-- **Concurrency:** Blocking/serial; no job queue or async.
-- **API may change:** Expect early-breaking changes.
+- Dataset and validation stores keep only the most recent 100 items
+- Concurrency is in-process with `asyncio`; there is no external job queue
+- API may change while the project stabilizes
 
 We are actively working on these limitations! Please [open an issue](https://github.com/davidf9999/gx-mcp-server/issues) 
 if you have feedback or feature requests.
 
 ## Security
 
-For production deployments, it is strongly recommended to run the server behind a reverse proxy (e.g., Nginx, Caddy, or a cloud load balancer) to handle TLS/HTTPS termination. This ensures that all communication between clients and the server is encrypted.
+For production deployments run the server behind a reverse proxy (e.g., Nginx, Caddy, or a cloud load balancer) to terminate TLS/HTTPS. When running locally the server binds to `127.0.0.1` by default.
+
+To enable HTTPS directly you can pass `--ssl-certfile` and `--ssl-keyfile` to the CLI, but using a dedicated proxy is preferred.
+
+Anonymous validation sessions use randomly generated UUIDv4 identifiers. If you implement persistent user sessions, generate IDs with `secrets.token_urlsafe(32)` and compare using `hmac.compare_digest`.
 
 ## Project Roadmap
 
