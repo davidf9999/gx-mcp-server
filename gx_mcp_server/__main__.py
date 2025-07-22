@@ -150,23 +150,32 @@ Examples:
     return parser.parse_args()
 
 
-def setup_logging(level: str) -> None:
+def setup_logging(level: str, trace: bool = False) -> None:
     """Configure logging for the application."""
     import logging
 
-    class OTelFilter(logging.Filter):
-        def filter(self, record: logging.LogRecord) -> bool:  # pragma: no cover - trivial
-            record.otel = os.getenv("OTEL_RESOURCE_ATTRIBUTES", "")
-            return True
+    log_format = (
+        "%(asctime)s [%(levelname)s] %(name)s %(otel)s: %(message)s"
+        if trace
+        else "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    )
 
     # Configure root logger
     logging.basicConfig(
         level=getattr(logging, level),
-        format="%(asctime)s [%(levelname)s] %(name)s %(otel)s: %(message)s",
+        format=log_format,
         handlers=[logging.StreamHandler(sys.stderr)],
     )
-    logging.getLogger().addFilter(OTelFilter())
-    
+
+    if trace:
+
+        class OTelFilter(logging.Filter):
+            def filter(self, record: logging.LogRecord) -> bool:  # pragma: no cover - trivial
+                record.otel = os.getenv("OTEL_RESOURCE_ATTRIBUTES", "")
+                return True
+
+        logging.getLogger().addFilter(OTelFilter())
+
     # Reduce noise from some libraries
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("uvicorn").setLevel(logging.WARNING)
@@ -362,7 +371,7 @@ def main() -> None:
     args = parse_args()
     if args.trace:
         os.environ.setdefault("OTEL_RESOURCE_ATTRIBUTES", "service.name=gx-mcp-server")
-    setup_logging(args.log_level)
+    setup_logging(args.log_level, args.trace)
     from gx_mcp_server.core import storage
 
     storage.configure_storage_backend(args.storage_backend)
