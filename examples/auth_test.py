@@ -42,7 +42,7 @@ from colorama import Fore, Style, init as colorama_init
 API_DEFAULT = "http://127.0.0.1:8000"
 HEALTH_PATH = "/mcp/health"
 TOKEN_ENDPOINT = "/oauth/token"  # adjust if your server exposes another path
-PROTECTED_PATH = "/load_dataset"  # "/mcp/health"? path that requires Bearer (or Basic) – adjust!
+PROTECTED_PATH = HEALTH_PATH # "/load_dataset"  # "/mcp/health"? path that requires Bearer (or Basic) – adjust!
 BASIC_USER = "user"
 BASIC_PASS = "pass"
 
