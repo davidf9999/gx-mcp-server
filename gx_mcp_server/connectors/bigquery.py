@@ -21,9 +21,7 @@ def load(uri: str) -> pd.DataFrame:
     project = parsed.hostname or parsed.netloc
     parts = [p for p in parsed.path.split("/") if p]
     if len(parts) < 2:
-        raise ValueError(
-            "BigQuery URI must be bigquery://project/dataset/table"
-        )
+        raise ValueError("BigQuery URI must be bigquery://project/dataset/table")
     dataset, table = parts[:2]
 
     client = bigquery.Client(project=project)

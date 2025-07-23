@@ -5,6 +5,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 from starlette.requests import Request
 
+
 class BasicAuthMiddleware(BaseHTTPMiddleware):
     """Simple HTTP Basic authentication middleware."""
 
@@ -16,7 +17,7 @@ class BasicAuthMiddleware(BaseHTTPMiddleware):
         # Allow OPTIONS requests to pass through without authentication
         if request.method == "OPTIONS":
             return await call_next(request)
-        
+
         # Allow OAuth token endpoint to pass through without basic auth
         if request.url.path == "/oauth/token":
             return await call_next(request)

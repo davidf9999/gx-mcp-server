@@ -1,4 +1,5 @@
 """Simple health check tool."""
+
 from typing import TYPE_CHECKING
 
 from starlette.requests import Request

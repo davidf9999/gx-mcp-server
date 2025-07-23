@@ -2,6 +2,7 @@
 """
 MCP tools for managing Great Expectations suites and expectations.
 """
+
 import threading
 from typing import TYPE_CHECKING, Any, Dict
 
@@ -21,6 +22,7 @@ API_VERSION = version("gx-mcp-server")
 def get_version() -> dict:
     """Return the API version for MCP server."""
     return {"version": API_VERSION}
+
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -51,6 +53,7 @@ def create_suite(
         The 'profiler' argument is deprecated and will be removed in a future release.
     """
     import warnings
+
     logger.info("Creating suite '%s' (profiler=%s)", suite_name, profiler)
     context = get_shared_context()
 
@@ -81,15 +84,15 @@ def add_expectation(
     kwargs: Dict[str, Any],
 ) -> schema.ToolResponse:
     """Add a single expectation to an existing suite (or create it).
-    
+
     Args:
         suite_name: Name of the expectation suite
         expectation_type: Type of expectation (e.g., "expect_column_values_to_be_in_set")
         kwargs: Parameters for the expectation (e.g., {"column": "status", "value_set": ["active", "inactive"]})
-        
+
     Returns:
         ToolResponse: Success/failure status and message
-        
+
     Examples:
         - Column values in set: add_expectation("my_suite", "expect_column_values_to_be_in_set", {"column": "status", "value_set": ["A", "B"]})
         - Column not null: add_expectation("my_suite", "expect_column_values_to_not_be_null", {"column": "id"})
@@ -123,7 +126,9 @@ def add_expectation(
             return schema.ToolResponse(success=True, message="Expectation added")
         except Exception as e:
             logger.error("Failed to add expectation: %s", str(e))
-            return schema.ToolResponse(success=False, message=f"Expectation addition failed: {str(e)}")
+            return schema.ToolResponse(
+                success=False, message=f"Expectation addition failed: {str(e)}"
+            )
 
 
 def register(mcp_instance: "FastMCP") -> None:

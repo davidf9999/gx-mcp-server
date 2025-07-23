@@ -80,5 +80,7 @@ async def test_concurrent_expectation_addition():
 
     # Both clients saw both expectations, because context is shared
     assert len(final_suite.expectations) == 2
-    assert {e.configuration.kwargs["column"] for e in final_suite.expectations} == {"col_A", "col_B"}
-
+    assert {e.configuration.kwargs["column"] for e in final_suite.expectations} == {
+        "col_A",
+        "col_B",
+    }

@@ -35,7 +35,7 @@ Examples:
   python -m gx_mcp_server --inspect          # Development mode with web UI
         """,
     )
-    
+
     transport_group = parser.add_mutually_exclusive_group()
     transport_group.add_argument(
         "--http",
@@ -55,21 +55,21 @@ Examples:
         default=None,
         help="Authentication token for the Inspector",
     )
-    
+
     parser.add_argument(
         "--port",
         type=int,
         default=8000,
         help="Port for HTTP server (default: 8000)",
     )
-    
+
     parser.add_argument(
         "--host",
         type=str,
         default="localhost",
         help="Host for HTTP server (default: 127.0.0.1)",
     )
-    
+
     parser.add_argument(
         "--log-level",
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
@@ -176,7 +176,9 @@ def setup_logging(level: str, trace: bool = False) -> None:
     if trace:
 
         class OTelFilter(logging.Filter):
-            def filter(self, record: logging.LogRecord) -> bool:  # pragma: no cover - trivial
+            def filter(
+                self, record: logging.LogRecord
+            ) -> bool:  # pragma: no cover - trivial
                 record.otel = os.getenv("OTEL_RESOURCE_ATTRIBUTES", "")
                 return True
 
@@ -190,10 +192,10 @@ def setup_logging(level: str, trace: bool = False) -> None:
 async def run_stdio() -> None:
     """Run MCP server in STDIO mode."""
     from gx_mcp_server import logger
-    
+
     logger.info("Starting GX MCP Server in STDIO mode")
     mcp = create_server()
-    
+
     # Run the server in STDIO mode
     await mcp.run_stdio_async()
 
@@ -297,11 +299,13 @@ async def run_http(
         except ValueError:
             raise ValueError("--basic-auth must be in USER:PASS format")
 
-        middleware.append(Middleware(BasicAuthMiddleware, username=username, password=password))
+        middleware.append(
+            Middleware(BasicAuthMiddleware, username=username, password=password)
+        )
 
     # Build FastAPI app with health route mounted before MCP routes
     mcp_app = mcp.http_app()
-    
+
     if trace_enabled:
         setup_tracing(mcp_app)
 
@@ -309,20 +313,25 @@ async def run_http(
         lifespan=mcp_app.lifespan,
         routes=[
             Route("/mcp/health", health, methods=["GET", "OPTIONS"], name="health"),
-            Route("/oauth/token", oauth_token_endpoint, methods=["POST"], name="oauth_token"),
+            Route(
+                "/oauth/token",
+                oauth_token_endpoint,
+                methods=["POST"],
+                name="oauth_token",
+            ),
             Mount("/", mcp_app),
         ],
         middleware=middleware,
     )
     app.state.limiter = limiter
-    
+
     # Create a wrapper function to match Starlette's expected signature
     def rate_limit_handler(request: Request, exc: Exception) -> Response:
         if isinstance(exc, RateLimitExceeded):
             return _rate_limit_exceeded_handler(request, exc)
         # This shouldn't happen since we only register for RateLimitExceeded
         raise exc
-    
+
     app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
 
     path = mcp_app.state.path.lstrip("/")
@@ -330,7 +339,7 @@ async def run_http(
 
     # Set up metrics on separate port
     from prometheus_fastapi_instrumentator import Instrumentator
-    
+
     instrumentator = Instrumentator().instrument(mcp_app)
     metrics_app = Starlette()
     instrumentator.expose(metrics_app, include_in_schema=False)
@@ -347,7 +356,9 @@ async def run_http(
     )
     server_main = uvicorn.Server(config_main)
 
-    config_metrics = uvicorn.Config(metrics_app, host=host, port=metrics_port, log_level="info")
+    config_metrics = uvicorn.Config(
+        metrics_app, host=host, port=metrics_port, log_level="info"
+    )
     server_metrics = uvicorn.Server(config_metrics)
 
     logger.info(f"Metrics available at http://{host}:{metrics_port}/metrics")
@@ -355,17 +366,19 @@ async def run_http(
     await asyncio.gather(server_main.serve(), server_metrics.serve())
 
 
-def show_inspector_instructions(host: str, port: int, basic_auth: str | None = None) -> None:
+def show_inspector_instructions(
+    host: str, port: int, basic_auth: str | None = None
+) -> None:
     """Run MCP server with inspector for development."""
     from gx_mcp_server import logger
-    
+
     logger.info(f"Starting GX MCP Server with Inspector on {host}:{port}")
     logger.info("The MCP Inspector should be run as a separate tool.")
     logger.info("To use the MCP Inspector with this server:")
     logger.info("1. Start this server in HTTP mode: python -m gx_mcp_server --http")
     logger.info("2. In another terminal, run: npx @modelcontextprotocol/inspector")
     logger.info("3. Connect the inspector to http://localhost:8000")
-    
+
     # For now, run the server in HTTP mode as a fallback
     mcp = create_server()
 
@@ -379,7 +392,9 @@ def show_inspector_instructions(host: str, port: int, basic_auth: str | None = N
         except ValueError:
             raise ValueError("--basic-auth must be in USER:PASS format")
 
-        middleware = [Middleware(BasicAuthMiddleware, username=username, password=password)]
+        middleware = [
+            Middleware(BasicAuthMiddleware, username=username, password=password)
+        ]
 
     asyncio.run(mcp.run_http_async(host=host, port=port, middleware=middleware))
 
@@ -393,10 +408,10 @@ def main() -> None:
     from gx_mcp_server.core import storage
 
     storage.configure_storage_backend(args.storage_backend)
-    
+
     if args.disable_analytics:
         os.environ["GX_ANALYTICS_ENABLED"] = "false"
-    
+
     try:
         if args.inspect:
             # Inspector mode (synchronous)

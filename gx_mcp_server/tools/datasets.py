@@ -9,6 +9,7 @@ import pandas as pd
 # ``polars`` is optional and used when streaming large CSVs
 try:
     import polars as pl
+
     HAS_POLARS = True
 except Exception:  # pragma: no cover - polars optional
     HAS_POLARS = False
@@ -66,7 +67,12 @@ def load_dataset(
         - URL: load_dataset("https://example.com/data.csv", "url")
         - Inline: load_dataset("x,y\\n1,2\\n3,4", "inline")
     """
-    logger.info("Called load_dataset(source_type=%s, max_rows=%s, use_polars=%s)", source_type, max_rows, use_polars)
+    logger.info(
+        "Called load_dataset(source_type=%s, max_rows=%s, use_polars=%s)",
+        source_type,
+        max_rows,
+        use_polars,
+    )
     LIMIT_BYTES = get_csv_size_limit_bytes()
     limit_mb = LIMIT_BYTES // (1024 * 1024)
     try:
@@ -142,9 +148,7 @@ def load_dataset(
                             logger.warning(
                                 "Remote CSV streamed exceeds %d MB limit", limit_mb
                             )
-                            return {
-                                "error": f"Remote CSV exceeds {limit_mb} MB limit"
-                            }
+                            return {"error": f"Remote CSV exceeds {limit_mb} MB limit"}
                         chunks.append(chunk)
                 txt = "".join(chunks)
             else:
@@ -158,7 +162,10 @@ def load_dataset(
 
         handle = storage.DataStorage.add(df)
         logger.info(
-            "Loaded dataset handle=%s (shape=%s, columns=%s)", handle, df.shape, df.columns.tolist()
+            "Loaded dataset handle=%s (shape=%s, columns=%s)",
+            handle,
+            df.shape,
+            df.columns.tolist(),
         )
         return schema.DatasetHandle(handle=handle)
     except Exception as e:

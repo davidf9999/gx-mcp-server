@@ -38,8 +38,7 @@ RATE_LIMIT_THRESHOLD = 20
 DEFAULT_SERVER_CMD = (
     "uv run python -m gx_mcp_server --http "
     f"--basic-auth {BASIC_USER}:{BASIC_PASS} "
-    "--bearer-issuer local "
-    "--allowed-origins http://localhost,http://127.0.0.1 "
+    "--allowed-origins http://localhost http://127.0.0.1 "
     f"--rate-limit {RATE_LIMIT_THRESHOLD // 2}"  # Set limit lower than test threshold
 )
 LOG_FILE = "security_server.out"

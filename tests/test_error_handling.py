@@ -6,6 +6,7 @@ from gx_mcp_server.tools.expectations import add_expectation, create_suite
 from gx_mcp_server.tools.validation import get_validation_result
 from gx_mcp_server.core.storage import DataStorage
 
+
 def test_load_malformed_csv():
     """Test loading a malformed CSV to ensure it's handled."""
     # This CSV has an incorrect number of columns in the second data row
@@ -19,6 +20,7 @@ def test_load_malformed_csv():
     # checks failing when a float NaN is returned.
     assert pd.isna(df.iloc[1][1])
 
+
 def test_get_non_existent_validation_result():
     """Test fetching a validation result with a non-existent ID."""
     fake_id = str(uuid.uuid4())
@@ -26,6 +28,7 @@ def test_get_non_existent_validation_result():
     assert result.success is False
     assert result.error is not None
     assert "not found" in result.error.lower()
+
 
 def test_add_unsupported_expectation():
     """Test adding an expectation with an unsupported type."""

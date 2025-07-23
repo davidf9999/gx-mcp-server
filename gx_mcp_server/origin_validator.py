@@ -4,6 +4,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 from starlette.requests import Request
 
+
 class OriginValidatorMiddleware(BaseHTTPMiddleware):
     """Middleware to validate the Origin header against a list of allowed origins."""
 

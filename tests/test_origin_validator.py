@@ -21,7 +21,9 @@ def make_app(origins):
     return app
 
 
-@pytest.mark.parametrize("origin, status", [("https://ok.com", 200), ("https://bad.com", 400)])
+@pytest.mark.parametrize(
+    "origin, status", [("https://ok.com", 200), ("https://bad.com", 400)]
+)
 def test_origin_validation(origin, status):
     app = make_app(["https://ok.com"])
     with TestClient(app) as client:

@@ -42,8 +42,12 @@ def _execute_validation(
             len(suite.expectations),
         )
     except DataContextError as e:
-        logger.warning("Suite '%s' not found in current context: %s", suite_name, str(e))
-        logger.info("This is expected in MCP servers where contexts don't persist across calls")
+        logger.warning(
+            "Suite '%s' not found in current context: %s", suite_name, str(e)
+        )
+        logger.info(
+            "This is expected in MCP servers where contexts don't persist across calls"
+        )
         return {
             "statistics": {"evaluated_expectations": 0},
             "results": [],
@@ -77,6 +81,7 @@ def _execute_validation(
     )
     validation_result = validator.validate()
     return validation_result.to_json_dict()
+
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP

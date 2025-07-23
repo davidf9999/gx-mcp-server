@@ -7,7 +7,7 @@ import warnings
 warnings.filterwarnings(
     "ignore",
     message=".*Number.*field should not be instantiated.*",
-    category=UserWarning
+    category=UserWarning,
 )
 try:
     marshmallow_warnings = __import__(
@@ -26,6 +26,7 @@ warnings.filterwarnings(
 
 # Configure logger
 logger = logging.getLogger("gx_mcp_server")
+
 
 # Avoid adding multiple handlers when the module is imported repeatedly
 class _OTelFilter(logging.Filter):

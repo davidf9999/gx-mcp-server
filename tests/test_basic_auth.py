@@ -10,7 +10,9 @@ def create_app(use_auth: bool):
     server = create_server()
     middleware = []
     if use_auth:
-        middleware.append(Middleware(BasicAuthMiddleware, username="user", password="pass"))
+        middleware.append(
+            Middleware(BasicAuthMiddleware, username="user", password="pass")
+        )
     return server.http_app(middleware=middleware)
 
 
@@ -29,4 +31,3 @@ def test_basic_auth_required():
         token = base64.b64encode(b"user:pass").decode()
         resp_ok = client.get("/mcp/", headers={"Authorization": f"Basic {token}"})
         assert resp_ok.status_code != 401
-

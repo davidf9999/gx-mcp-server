@@ -21,4 +21,3 @@ async def test_bearer_required():
         token = keypair.create_token(audience="gx-mcp")
         resp_ok = client.get("/mcp/", headers={"Authorization": f"Bearer {token}"})
         assert resp_ok.status_code != 401
-
