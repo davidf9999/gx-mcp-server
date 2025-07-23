@@ -13,6 +13,10 @@ class BasicAuthMiddleware(BaseHTTPMiddleware):
         self._expected = f"{username}:{password}"
 
     async def dispatch(self, request: Request, call_next):
+        # Allow OPTIONS requests to pass through without authentication
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
         auth = request.headers.get("Authorization")
         if not auth or not auth.lower().startswith("basic "):
             return Response(status_code=401, headers={"WWW-Authenticate": "Basic"})

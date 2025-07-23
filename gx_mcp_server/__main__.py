@@ -267,9 +267,19 @@ async def run_http(
 
     if allowed_origins:
         from gx_mcp_server.origin_validator import OriginValidatorMiddleware
+        from starlette.middleware.cors import CORSMiddleware
 
         middleware.append(
             Middleware(OriginValidatorMiddleware, allowed_origins=allowed_origins)
+        )
+        middleware.append(
+            Middleware(
+                CORSMiddleware,
+                allow_origins=allowed_origins,
+                allow_credentials=True,
+                allow_methods=["*"],
+                allow_headers=["*"],
+            )
         )
 
     if basic_auth:
@@ -291,7 +301,7 @@ async def run_http(
     app = Starlette(
         lifespan=mcp_app.lifespan,
         routes=[
-            Route("/mcp/health", health, methods=["GET"], name="health"),
+            Route("/mcp/health", health, methods=["GET", "OPTIONS"], name="health"),
             Mount("/", mcp_app),
         ],
         middleware=middleware,

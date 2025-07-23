@@ -49,6 +49,7 @@ dev = [
     "openai",
     "python-dotenv",
     "fastapi",
+    "colorama",
 ]
 snowflake = ["snowflake-connector-python"]
 bigquery  = ["google-cloud-bigquery"]
