@@ -147,6 +147,12 @@ Examples:
         help="Allowed origins for CORS",
     )
 
+    parser.add_argument(
+        "--disable-analytics",
+        action="store_true",
+        help="Disable Great Expectations analytics",
+    )
+
     return parser.parse_args()
 
 
@@ -385,6 +391,9 @@ def main() -> None:
     from gx_mcp_server.core import storage
 
     storage.configure_storage_backend(args.storage_backend)
+    
+    if args.disable_analytics:
+        os.environ["GX_ANALYTICS_ENABLED"] = "false"
     
     try:
         if args.inspect:
