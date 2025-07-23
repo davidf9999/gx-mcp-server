@@ -244,6 +244,7 @@ async def run_http(
     from starlette.routing import Mount, Route
     from starlette.middleware import Middleware
     from gx_mcp_server.tools.health import health
+    from gx_mcp_server.oauth_token import oauth_token_endpoint
     import uvicorn
 
     logger.info(f"Starting GX MCP Server in HTTP mode on {host}:{port}")
@@ -308,6 +309,7 @@ async def run_http(
         lifespan=mcp_app.lifespan,
         routes=[
             Route("/mcp/health", health, methods=["GET", "OPTIONS"], name="health"),
+            Route("/oauth/token", oauth_token_endpoint, methods=["POST"], name="oauth_token"),
             Mount("/", mcp_app),
         ],
         middleware=middleware,

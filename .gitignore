@@ -70,3 +70,8 @@ Thumbs.db
 
 # MCP server specific
 mcp_charts/           # if persisting charts under /tmp
+
+
+# Claude CLI personal config
+.claude/settings.local.json
+.claude/*.local.json
