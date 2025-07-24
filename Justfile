@@ -66,14 +66,21 @@ release: ci run-examples
     git pull origin main
     git merge dev
     git push
-    @LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+    @LATEST_TAG=$(git describe --tags `$(git rev-list --tags --max-count=1)`)
     @echo "Latest tag is $LATEST_TAG"
-    @read -p "Enter the new version (e.g., v0.1.0): " NEW_VERSION; \
-    if [ -z "$NEW_VERSION" ]; then \
-        echo "No version entered. Aborting."; \
-        exit 1; \
+    @VERSION=$(grep '^version = ' pyproject.toml | awk -F '"' '{print $2}')
+    @if [ -z "$VERSION" ]; then echo "Version not found in pyproject.toml. Aborting."; exit 1; fi
+    @if [ "v$VERSION" == "$LATEST_TAG" ]; then 
+        echo "Error: Version in pyproject.toml (v$VERSION) is the same as the latest tag."; 
+        echo "Please update the version before releasing."; 
+        exit 1; 
     fi
-    git tag $NEW_VERSION
-    git push origin $NEW_VERSION
-    echo "Successfully created and pushed tag $NEW_VERSION"
+    @read -p "Tag and release v$VERSION? (y/n) " -r; 
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then 
+        echo "Aborting."; 
+        exit 1; 
+    fi
+    git tag "v$VERSION"
+    git push origin "v$VERSION"
+    echo "Successfully created and pushed tag v$VERSION"
     git checkout dev
