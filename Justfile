@@ -35,8 +35,8 @@ serve: ensure_uv
     {{uv_cmd}} run python -m gx_mcp_server --http
 
 run-examples: ensure_uv
-    @set -a && source .env && set +a
-    @if [ -z "${OPENAI_API_KEY:-}" ]; then \
+    @env $(cat .env | xargs) \
+    if [ -z "${OPENAI_API_KEY:-}" ]; then \
         echo "ERROR: OPENAI_API_KEY is not set. It is required to run the example scripts."; \
         exit 1; \
     fi
