@@ -64,6 +64,7 @@ release level:
     # 1. Pre-flight checks
     just ci
     just run-examples
+    just docker-all
 
     # 2. Merge dev to main
     git checkout main
