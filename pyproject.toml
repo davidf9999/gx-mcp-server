@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gx-mcp-server"
-version = "1.0.0"
+version = "0.1.0"
 description = "Expose Great Expectations data-quality checks via MCP"
 readme = "README.md"
 long_description_content_type = "text/markdown"
@@ -40,7 +40,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "pytest-asyncio", 
+    "pytest-asyncio",
     "pre-commit",
     "ruff",
     "mypy",
@@ -50,6 +50,7 @@ dev = [
     "python-dotenv",
     "fastapi",
     "colorama",
+    "bump-my-version",
 ]
 snowflake = ["snowflake-connector-python"]
 bigquery  = ["google-cloud-bigquery"]
@@ -101,3 +102,12 @@ filterwarnings = [
 [tool.ruff.lint]
 # Complain about TODOs
 extend-select = ["FIX002"]
+
+[tool.bump-my-version]
+commit = true
+tag = true
+tag_name = "v{new_version}"
+commit_message = "chore(release): Version bump to v{new_version}"
+
+[[tool.bump-my-version.files]]
+filename = "pyproject.toml"

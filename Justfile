@@ -58,29 +58,26 @@ docker-run-examples:
 
 docker-all: docker-build-dev docker-test docker-run-examples
 
-release: ci run-examples
-    @echo "Running release process..."
-    git checkout dev
-    git pull origin dev
+# Usage: just release patch|minor|major
+release level:
+    @echo "Running {{level}} release process..."
+    # 1. Pre-flight checks
+    just ci
+    just run-examples
+
+    # 2. Merge dev to main
     git checkout main
     git pull origin main
     git merge dev
-    git push
-    @LATEST_TAG=$(git describe --tags `$(git rev-list --tags --max-count=1)`)
-    @echo "Latest tag is $LATEST_TAG"
-    @VERSION=$(grep '^version = ' pyproject.toml | awk -F '"' '{print $2}')
-    @if [ -z "$VERSION" ]; then echo "Version not found in pyproject.toml. Aborting."; exit 1; fi
-    @if [ "v$VERSION" == "$LATEST_TAG" ]; then 
-        echo "Error: Version in pyproject.toml (v$VERSION) is the same as the latest tag."; 
-        echo "Please update the version before releasing."; 
-        exit 1; 
-    fi
-    @read -p "Tag and release v$VERSION? (y/n) " -r; 
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then 
-        echo "Aborting."; 
-        exit 1; 
-    fi
-    git tag "v$VERSION"
-    git push origin "v$VERSION"
-    echo "Successfully created and pushed tag v$VERSION"
+
+    # 3. Bump version, commit, and tag
+    {{uv_cmd}} run bump-my-version {{level}} --allow-dirty
+
+    # 4. Push everything
+    git push origin main --tags
+
+    # 5. Sync dev branch
     git checkout dev
+    git rebase main
+    git push origin dev
+    @echo "Successfully released and pushed new version."

@@ -64,11 +64,18 @@ The release process is as follows:
     just run-examples
     just docker-all
     ```
-2.  **Run the Release Command**: Once all tests pass on `dev`, run the `release` command.
+2.  **Run the Release Command**: Once all tests pass on `dev`, run the `release` command with the appropriate version bump (`patch`, `minor`, or `major`).
     ```bash
-    just release
+    # For a patch release (e.g., v1.0.0 -> v1.0.1)
+    just release patch
+
+    # For a minor release (e.g., v1.0.0 -> v1.1.0)
+    just release minor
+
+    # For a major release (e.g., v1.0.0 -> v2.0.0)
+    just release major
     ```
-    This will merge `dev` into `main`, prompt for a new version tag, and push the tag to trigger the release workflow.
+    This will automatically handle version bumping, tagging, and pushing the release.
 
 ## Reporting Issues
 
