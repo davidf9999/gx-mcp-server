@@ -1,6 +1,6 @@
 # Instructions for AI agents
 
-This repository hosts the **Great Expectations MCP Server** - a modern MCP server that exposes Great Expectations data validation capabilities.
+This repository hosts the **Great Expectations MCP Server** – a modern MCP server that exposes Great Expectations data-validation capabilities.
 
 ## Architecture
 
@@ -33,31 +33,37 @@ python scripts/run_examples.py
 uv run pre-commit run --all-files
 uv run pytest
 
-# Type checking (with relaxed rules for development flexibility)
+# Type checking (relaxed rules for development flexibility)
 uv run mypy gx_mcp_server/
 ```
 
-### Linting Configuration
-- **MyPy**: Relaxed rules for development flexibility
-- **Examples**: Excluded from strict type checking
-- **Known Warning**: Marshmallow compatibility warning from Great Expectations is harmless
-
 ### Server Commands
+
+**STDIO mode** (for AI clients):
 ```bash
-# STDIO mode (for AI clients)
 uv run python -m gx_mcp_server
+```
 
-# HTTP mode (for testing)
+**HTTP mode** (for testing):
+```bash
 uv run python -m gx_mcp_server --http
+```
 
-# Inspector mode (development)
+**Inspector mode** (development):
+```bash
 uv run python -m gx_mcp_server --inspect
 ```
 
 ## Key Files
 
-- `gx_mcp_server/__main__.py` - CLI entry point
-- `gx_mcp_server/server.py` - Server factory  
-- `gx_mcp_server/tools/` - MCP tool implementations
-- `examples/basic_roundtrip.py` - Working example
-- `pyproject.toml` - UV package configuration
+- `gx_mcp_server/__main__.py` – CLI entry point
+- `gx_mcp_server/server.py` – Server factory
+- `gx_mcp_server/tools/` – MCP tool implementations
+- `examples/basic_roundtrip.py` – working example
+- `pyproject.toml` – UV package configuration
+
+## Notes for Agents
+
+- The `profiler=True` flag in `create_suite` is **deprecated** by Great Expectations 1.5+. Create empty suites and add expectations manually.
+- Examples are excluded from strict type checking; relax mypy warnings accordingly.
+- All datasets and validation results are ephemeral unless you switch to `--storage-backend sqlite:///path/to/db`.
