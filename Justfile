@@ -75,7 +75,7 @@ release level:
     git merge dev
 
     # 3. Bump version, commit, and tag
-    {{uv_cmd}} run bump-my-version {{level}}
+    {{uv_cmd}} run bump-my-version bump {{level}}
 
     # 4. Push everything
     git push origin main --tags
