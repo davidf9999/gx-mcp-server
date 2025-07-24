@@ -35,11 +35,13 @@ serve: ensure_uv
     {{uv_cmd}} run python -m gx_mcp_server --http
 
 run-examples: ensure_uv
-    @env $(cat .env | xargs) \
+    @if [ -f .env ]; then \
+        export $(grep -v '^#' .env | xargs); \
+    fi; \
     if [ -z "${OPENAI_API_KEY:-}" ]; then \
         echo "ERROR: OPENAI_API_KEY is not set. It is required to run the example scripts."; \
         exit 1; \
-    fi
+    fi; \
     {{uv_cmd}} run python scripts/run_examples.py
 
 docker-build:
