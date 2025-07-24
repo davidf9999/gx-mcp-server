@@ -108,27 +108,41 @@ load_dataset("bigquery://project/dataset/table")
 
 ## Docker
 
+Build and run the server in Docker:
+
 ```bash
+# Build the production image
 just docker-build
+
+# Run the server
 just docker-run
-just docker-test
 ```
 
-## Run examples
+The server will be available at `http://localhost:8000`.
 
-- `scripts/run_examples.py` – all examples
+For development, you can build a development image that includes test dependencies and run tests or examples:
 
-## Continuous Integration
-
-Every push & PR runs:
-- `ruff` linting
-- `mypy` type check
-- `pytest` test suite
-
-Run everything locally:
 ```bash
-just ci
+# Build the development image
+just docker-build-dev
+
+# Run tests
+just docker-test
+
+# Run examples (requires OPENAI_API_KEY in .env file)
+just docker-run-examples
 ```
+
+## Development
+
+### Quickstart
+
+```bash
+just install
+cp .env.example .env  # optional: add your OpenAI API key
+just run-examples
+```
+
 
 ## Telemetry
 

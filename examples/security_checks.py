@@ -11,6 +11,7 @@ import os
 import shlex
 import subprocess
 import sys
+import tempfile
 import time
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional
@@ -41,7 +42,7 @@ DEFAULT_SERVER_CMD = (
     "--allowed-origins http://localhost http://127.0.0.1 "
     f"--rate-limit {RATE_LIMIT_THRESHOLD // 2}"  # Set limit lower than test threshold
 )
-LOG_FILE = "security_server.out"
+LOG_FILE = os.path.join(tempfile.gettempdir(), "security_server.out")
 HTTPS_BASE_URL = ""
 COOKIE_CHECK_URL = ""
 # ------------------------------------------

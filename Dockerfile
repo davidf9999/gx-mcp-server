@@ -3,7 +3,8 @@ WORKDIR /app
 COPY pyproject.toml uv.lock* LICENSE README.md ./
 RUN pip install uv
 RUN uv sync
-RUN groupadd -r app && useradd --no-log-init -r -g app app
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN groupadd -r app && useradd --no-log-init -r -m -g app app
 COPY . .
 ARG WITH_DEV=false
 RUN if [ "$WITH_DEV" = "true" ]; then \

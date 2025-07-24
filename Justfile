@@ -44,8 +44,19 @@ run-examples: ensure_uv
 docker-build:
     docker build -t gx-mcp-server .
 
+docker-build-dev:
+    docker build --build-arg WITH_DEV=true -t gx-mcp-server:dev .
+
+docker-run:
+    docker run --rm -it -p 8000:8000 gx-mcp-server
+
 docker-test:
-    docker run --rm gx-mcp-server uv run pytest
+    docker run --rm gx-mcp-server:dev uv run pytest
+
+docker-run-examples:
+    docker run --rm -e OPENAI_API_KEY --env-file .env gx-mcp-server:dev uv run python scripts/run_examples.py
+
+docker-all: docker-build-dev docker-test docker-run-examples
 
 release: ci run-examples
     @echo "Running release process..."
