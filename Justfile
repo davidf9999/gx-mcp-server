@@ -36,7 +36,11 @@ serve: ensure_uv
 
 run-examples: ensure_uv
     @if [ -z "${OPENAI_API_KEY:-}" ]; then \
-        echo "ERROR: OPENAI_API_KEY is not set. It is required to run the example scripts."; \
+        echo "Loading .env file..."; \
+        {{uv_cmd}} run python -c "import dotenv; dotenv.load_dotenv()"; \
+    fi
+    @if [ -z "${OPENAI_API_KEY:-}" ]; then \
+        echo "ERROR: OPENAI_API_KEY is not set after loading .env. It is required to run the example scripts."; \
         exit 1; \
     fi
     {{uv_cmd}} run python scripts/run_examples.py
