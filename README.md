@@ -51,6 +51,12 @@ just run-examples
 
 ## Usage
 
+
+**Help**
+```bash
+uv run python -m gx_mcp_server --help
+```
+
 **STDIO mode** (default for AI clients):
 ```bash
 uv run python -m gx_mcp_server
@@ -108,11 +114,9 @@ just docker-run
 just docker-test
 ```
 
-## Examples
+## Run examples
 
-- `examples/basic_roundtrip.py` – minimal workflow
-- `examples/ai_expectation_roundtrip.py` – LLM-assisted suite creation
-- `examples/security_checks.py` – auth & security tests
+- `scripts/run_examples.py` – all examples
 
 ## Continuous Integration
 
