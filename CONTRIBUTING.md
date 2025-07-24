@@ -58,10 +58,11 @@ just install && just lint && just test
 The `main` branch is protected and reflects the latest published version. All new development should be done on feature branches and merged into the `dev` branch.
 
 The release process is as follows:
-1.  **Thorough Testing**: Before a release, run all tests on the `dev` branch. This includes not only the `pytest` suite but also the example scripts.
+1.  **Thorough Testing**: Before a release, run all tests on the `dev` branch. This includes not only the `pytest` suite but also the example scripts, locally and on docker.
     ```bash
     just ci
     just run-examples
+    just docker-all
     ```
 2.  **Run the Release Command**: Once all tests pass on `dev`, run the `release` command.
     ```bash
