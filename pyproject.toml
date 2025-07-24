@@ -111,3 +111,8 @@ commit_message = "chore(release): Version bump to v{new_version}"
 
 [[tool.bump-my-version.files]]
 filename = "pyproject.toml"
+
+[dependency-groups]
+dev = [
+    "bump-my-version>=1.2.1",
+]
