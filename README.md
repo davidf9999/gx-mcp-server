@@ -78,6 +78,86 @@ uv run python -m gx_mcp_server --inspect
 npx @modelcontextprotocol/inspector
 ```
 
+## Authentication
+
+By default, the server runs **without any authentication enabled**. For production or secure environments, you should enable one of the supported methods below.
+
+The server supports two authentication methods for the HTTP and Inspector modes: Basic and Bearer.
+
+### Basic Authentication
+
+Use a simple username and password to protect the server. You can provide credentials via command-line arguments or environment variables.
+
+**Command-line argument:**
+
+```bash
+uv run python -m gx_mcp_server --http --basic-auth myuser:mypassword
+```
+
+**Environment variables:**
+
+```bash
+export MCP_SERVER_USER=myuser
+export MCP_SERVER_PASSWORD=mypassword
+uv run python -m gx_mcp_server --http
+```
+
+### Bearer Authentication
+
+For more secure, token-based authentication, you can use bearer tokens (JWTs). This is the recommended approach for production environments.
+
+**How it Works:** The `gx-mcp-server` acts as a *resource server* and **validates** JWTs. It does not issue them. Your AI agent (the client) must first obtain a JWT from a dedicated **Identity Provider** (like Auth0, Okta, or a custom auth service).
+
+**Configuration:**
+
+```bash
+# Example using a public key file
+uv run python -m gx_mcp_server --http \
+  --bearer-public-key-file /path/to/public_key.pem \
+  --bearer-issuer https://my-auth-provider.com/ \
+  --bearer-audience https://my-api.com
+
+# Example using a JWKS URL
+uv run python -m gx_mcp_server --http \
+  --bearer-jwks https://my-auth-provider.com/.well-known/jwks.json \
+  --bearer-issuer https://my-auth-provider.com/ \
+  --bearer-audience https://my-api.com
+```
+
+- `--bearer-public-key-file`: Path to the RSA public key for verifying the JWT signature.
+- `--bearer-jwks`: URL of the JSON Web Key Set (JWKS) to fetch the public key.
+- `--bearer-issuer`: The expected issuer (`iss`) claim in the JWT.
+- `--bearer-audience`: The expected audience (`aud`) claim in the JWT.
+
+### Using the Remote Docker Image with an AI Agent
+
+To use the `gx-mcp-server` with an AI agent, you can run the official Docker image and configure your agent to connect to it.
+
+1.  **Run the Docker container with authentication:**
+
+    ```bash
+    docker run -d -p 8080:8000 \
+      --name gx-mcp-server \
+      -e MCP_SERVER_USER=myuser \
+      -e MCP_SERVER_PASSWORD=mypassword \
+      davidf9999/gx-mcp-server:latest
+    ```
+
+2.  **Configure your AI agent:**
+
+    Set the following environment variables in your agent's environment:
+
+    ```bash
+    export MCP_SERVER_URL=http://localhost:8080
+    export MCP_AUTH_TOKEN="myuser:mypassword" # For basic auth
+    ```
+
+    For bearer auth, you would provide the JWT (obtained from your Identity Provider) in the `MCP_AUTH_TOKEN` variable:
+
+    ```bash
+    export MCP_AUTH_TOKEN="<your_jwt>"
+    ```
+
 ## Configuring Maximum CSV File Size
 
 Default limit is **50 MB**. Override via environment variable:

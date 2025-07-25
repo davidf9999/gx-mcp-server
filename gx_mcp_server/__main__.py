@@ -413,9 +413,16 @@ def main() -> None:
         os.environ["GX_ANALYTICS_ENABLED"] = "false"
 
     try:
+        basic_auth_creds = args.basic_auth
+        if not basic_auth_creds:
+            user = os.getenv("MCP_SERVER_USER")
+            password = os.getenv("MCP_SERVER_PASSWORD")
+            if user and password:
+                basic_auth_creds = f"{user}:{password}"
+
         if args.inspect:
             # Inspector mode (synchronous)
-            show_inspector_instructions(args.host, args.port, args.basic_auth)
+            show_inspector_instructions(args.host, args.port, basic_auth_creds)
         elif args.http:
             # HTTP mode (async)
             asyncio.run(
@@ -426,7 +433,7 @@ def main() -> None:
                     args.log_level,
                     args.metrics_port,
                     args.trace,
-                    args.basic_auth,
+                    basic_auth_creds,
                     args.allowed_origins,
                     args.ssl_certfile,
                     args.ssl_keyfile,

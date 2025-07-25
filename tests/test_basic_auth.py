@@ -1,4 +1,6 @@
 import base64
+import os
+from unittest.mock import patch
 from starlette.testclient import TestClient
 from starlette.middleware import Middleware
 
@@ -31,3 +33,17 @@ def test_basic_auth_required():
         token = base64.b64encode(b"user:pass").decode()
         resp_ok = client.get("/mcp/", headers={"Authorization": f"Basic {token}"})
         assert resp_ok.status_code != 401
+
+
+@patch.dict(os.environ, {"MCP_SERVER_USER": "env_user", "MCP_SERVER_PASSWORD": "env_pass"})
+def test_basic_auth_from_env():
+    from gx_mcp_server.__main__ import main
+
+    with patch("sys.argv", ["gx_mcp_server", "--http"]):
+        with patch("asyncio.run") as mock_run:
+            main()
+            # Get the run_http coroutine from the mock
+            coro = mock_run.call_args[0][0]
+            # Get the basic_auth argument from the coroutine
+            basic_auth_arg = coro.cr_frame.f_locals["basic_auth"]
+            assert basic_auth_arg == "env_user:env_pass"
