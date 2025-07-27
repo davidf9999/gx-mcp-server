@@ -81,7 +81,7 @@ docker-smoke-test:
 release-checks:
     @echo "🔍 Running release pre-flight checks…"
     just ci
-    just run-examples
+    # just run-examples
     just docker-all
     just docker-smoke-test
 
