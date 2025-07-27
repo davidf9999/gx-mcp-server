@@ -61,32 +61,54 @@ docker-run-examples:
 
 docker-all: docker-build-dev docker-test docker-run-examples
 
-# Usage: just release patch|minor|major
-release level:
-    @echo "Running {{level}} release process..."
-    @if [ "$(git branch --show-current)" != "dev" ]; then \
-        echo "ERROR: You must be on the 'dev' branch to run a release."; \
+#–– smoke‐test your prod image ––
+docker-smoke-test:
+    @echo "🔨 Building prod Docker image…"
+    docker build -t gx-mcp-server:prod-test .
+    @echo "🚦 Launching smoke‐test container…"
+    container=$$(docker run -d -p 8000:8000 gx-mcp-server:prod-test); \
+      sleep 5; \
+      echo "🌐 Probing /metrics…"; \
+      if ! curl -fsS http://localhost:8000/metrics; then \
+        echo "** Smoke‐test failed — logs follow **"; \
+        docker logs $$container; \
+        docker rm -f $$container; \
         exit 1; \
-    fi
-    # 1. Pre-flight checks
+      fi; \
+      docker rm -f $$container; \
+      echo "✅ Prod image smoke‐test OK"
+
+release-checks:
+    @echo "🔍 Running release pre-flight checks…"
     just ci
     just run-examples
     just docker-all
+    just docker-smoke-test
 
+# Usage: just release patch|minor|major
+release level:
+    @echo "🔖 Starting {{level}} release…"
+    @if [ "$(git branch --show-current)" != "dev" ]; then \
+      echo "ERROR: must be on dev"; exit 1; \
+    fi
 
-    # 2. Merge dev to main
+    # 1–2. Run all checks (dev tests + prod smoke‑test)
+    just release-checks
+
+    # 3. Merge dev → main
     git checkout main
     git pull origin main
     git merge dev
 
-    # 3. Bump version, commit, and tag
+    # 4. Bump version, commit & tag
     {{uv_cmd}} run bump-my-version bump {{level}} pyproject.toml --commit --tag
 
-    # 4. Push everything
+    # 5. Push everything
     git push origin main --tags
 
-    # 5. Sync dev branch
+    # 6. Sync dev
     git checkout dev
     git rebase main
     git push origin dev
-    @echo "Successfully released and pushed new version."
+
+    @echo "🎉 Released gx-mcp-server {{level}}"
