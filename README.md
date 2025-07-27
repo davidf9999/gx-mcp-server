@@ -9,6 +9,20 @@
 [![CI](https://github.com/davidf9999/gx-mcp-server/actions/workflows/ci.yaml/badge.svg?branch=dev)](https://github.com/davidf9999/gx-mcp-server/actions/workflows/ci.yaml) 
 [![Publish](https://github.com/davidf9999/gx-mcp-server/actions/workflows/publish.yaml/badge.svg)](https://github.com/davidf9999/gx-mcp-server/actions/workflows/publish.yaml)
 
+## Table of Contents
+
+- [Motivation](#motivation)
+- [Quick Start](#quick-start)
+- [Features](#features)
+- [Installation & Usage](#installation--usage)
+- [MCP Client Configuration](#mcp-client-configuration)
+- [Authentication](#authentication)
+- [Docker](#docker)
+- [Configuration](#configuration)
+- [Development](#development)
+- [Security](#security)
+- [License & Contributing](#license--contributing)
+
 ## Motivation
 
 Large Language Model (LLM) agents often need to interact with and validate data. Great Expectations is a powerful open-source tool for data quality, but it's not natively accessible to LLM agents. This server bridges that gap by exposing core Great Expectations functionality through the Model Context Protocol (MCP), allowing agents to:
@@ -18,40 +32,23 @@ Large Language Model (LLM) agents often need to interact with and validate data.
 - Run validation checks and interpret the results.
 - Integrate robust data quality checks into their automated workflows.
 
-## Quick Start for MCP Users
+## Quick Start
 
-**Just want to use it with Claude CLI?**
-
+**Docker (Recommended):**
 ```bash
-# Option 1: Use remote Docker image (easiest, no auth)
 docker run -d -p 8000:8000 --name gx-mcp-server davidf9999/gx-mcp-server:latest
 claude mcp add gx-mcp-server --transport http http://localhost:8000/mcp/
-
-# Option 1b: With authentication
-docker run -d -p 8000:8000 --name gx-mcp-server \
-  -e MCP_SERVER_USER=myuser -e MCP_SERVER_PASSWORD=mypass \
-  davidf9999/gx-mcp-server:latest
-claude mcp add gx-mcp-server --transport http \
-  --header "Authorization: Basic $(echo -n 'myuser:mypass' | base64)" \
-  http://localhost:8000/mcp/
-
-# Option 2: Run locally (requires uv)
-git clone https://github.com/davidf9999/gx-mcp-server && cd gx-mcp-server
-just install
-claude mcp add gx-mcp-server-local -- uv run python -m gx_mcp_server --log-level DEBUG
-
-# Test it works
 claude "Load CSV data id,age\n1,25\n2,19\n3,45 and validate ages 21-65, show failed records"
 ```
 
-## TL;DR (Development)
+**Local Development:**
+```bash
+git clone https://github.com/davidf9999/gx-mcp-server && cd gx-mcp-server
+just install
+claude mcp add gx-mcp-server-local -- uv run python -m gx_mcp_server
+```
 
-- **Install:** `just install`
-- **Run server:** `just serve`
-- **Try examples:** `just run-examples`
-- **Test:** `just test`
-- **Lint and type-check:** `just ci`
-- **Default CSV limit:** 50 MB (`MCP_CSV_SIZE_LIMIT_MB` to change)
+## Installation & Usage
 
 ## Features
 
@@ -67,177 +64,80 @@ claude "Load CSV data id,age\n1,25\n2,19\n3,45 and validate ages 21-65, show fai
 - **OpenTelemetry** tracing via `--trace` (OTLP exporter)
 - Multiple transport modes: **STDIO**, **HTTP**, **Inspector (GUI)**
 
-## Quickstart
-
+**Development Setup:**
 ```bash
-just install
-cp .env.example .env  # optional: add your OpenAI API key
-just run-examples
+just install                    # Install dependencies
+just serve                      # Run HTTP server
+just run-examples              # Try examples
+just test                      # Run tests
+just ci                        # Lint and type-check
 ```
 
-## Usage
-
-
-**Help**
+**Server Modes:**
 ```bash
-uv run python -m gx_mcp_server --help
+uv run python -m gx_mcp_server                    # STDIO (for AI clients)
+uv run python -m gx_mcp_server --http             # HTTP (for web clients)
+uv run python -m gx_mcp_server --inspect          # Inspector GUI
 ```
 
-**STDIO mode** (default for AI clients):
+**With Authentication:**
 ```bash
-uv run python -m gx_mcp_server
-```
-
-**HTTP mode** (for web / API clients):
-```bash
-just serve
-# Add basic auth
 uv run python -m gx_mcp_server --http --basic-auth user:pass
-# Add rate limiting
 uv run python -m gx_mcp_server --http --rate-limit 30
-```
-
-**Inspector GUI** (development):
-```bash
-uv run python -m gx_mcp_server --inspect
-# Then in another shell:
-npx @modelcontextprotocol/inspector
 ```
 
 ## MCP Client Configuration
 
-The `gx-mcp-server` can be used by any MCP-compatible client, including Claude Desktop, Claude CLI, or custom applications. This section shows how to configure various MCP clients to connect to the server.
+Configure any MCP-compatible client (Claude Desktop, Claude CLI, custom applications) to connect to the server.
 
-### Prerequisites
+### Claude CLI Setup
 
-Before configuring your MCP client, ensure the server is running in one of these modes:
-
-**Local Server (STDIO mode):**
+**Local Development (STDIO):**
 ```bash
-uv run python -m gx_mcp_server
+claude mcp add gx-mcp-server-local -- uv run python -m gx_mcp_server
 ```
 
-**Local Server (HTTP mode):**
-```bash
-uv run python -m gx_mcp_server --http
-```
-
-**Local Docker Container:**
-```bash
-docker run -d -p 8000:8000 --name gx-mcp-server gx-mcp-server:latest
-```
-
-**Remote Docker Image:**
+**Docker without Authentication:**
 ```bash
 docker run -d -p 8000:8000 --name gx-mcp-server davidf9999/gx-mcp-server:latest
+claude mcp add gx-mcp-server --transport http http://localhost:8000/mcp/
 ```
 
-### Claude CLI Configuration
-
-The Claude CLI (`claude` command) provides the easiest way to configure MCP servers. Here are the commands for different deployment scenarios:
-
-#### 1. Local Server (STDIO) - Recommended for Development
-
+**Docker with Basic Authentication:**
 ```bash
-# Add local STDIO server (runs in same process as Claude)
-claude mcp add gx-mcp-server-local -- uv run python -m gx_mcp_server --log-level DEBUG
-
-# Verify connection
-claude mcp list
-```
-
-**Example prompts for Claude CLI:**
-```bash
-# Test the MCP server
-claude "Load this CSV data and validate that all ages are between 21 and 65: id,age\n1,25\n2,32\n3,19\n4,45"
-
-# More complex validation
-claude "Using gx-mcp-server, load example_1.csv and check if ages are between 21-65, then show only failed records"
-```
-
-#### 2. Local Docker Container (HTTP)
-
-**Without Authentication:**
-```bash
-# Start Docker container first
-docker run -d -p 8000:8000 --name gx-mcp-server-local gx-mcp-server:latest
-
-# Add HTTP server configuration
-claude mcp add gx-mcp-server-docker --transport http http://localhost:8000/mcp/
-
-# Verify connection
-claude mcp list
-```
-
-**With Basic Authentication:**
-```bash
-# Start Docker container with authentication
-docker run -d -p 8000:8000 --name gx-mcp-server-local \
-  -e MCP_SERVER_USER=myuser \
-  -e MCP_SERVER_PASSWORD=mypass \
-  gx-mcp-server:latest
-
-# Add HTTP server with auth headers
-claude mcp add gx-mcp-server-docker --transport http \
+docker run -d -p 8000:8000 --name gx-mcp-server \
+  -e MCP_SERVER_USER=myuser -e MCP_SERVER_PASSWORD=mypass \
+  davidf9999/gx-mcp-server:latest
+claude mcp add gx-mcp-server --transport http \
   --header "Authorization: Basic $(echo -n 'myuser:mypass' | base64)" \
   http://localhost:8000/mcp/
 ```
 
-#### 3. Remote Docker Server (HTTP)
-
-**Without Authentication:**
+**Remote Server with JWT:**
 ```bash
-# For remote server (replace with your server URL)
-claude mcp add gx-mcp-server-remote --transport http https://your-server.com:8000/mcp/
-```
-
-**With Basic Authentication:**
-```bash
-# Using basic auth credentials
 claude mcp add gx-mcp-server-remote --transport http \
-  --header "Authorization: Basic $(echo -n 'user:pass' | base64)" \
+  --header "Authorization: Bearer YOUR_JWT_TOKEN" \
   https://your-server.com:8000/mcp/
 ```
 
-**With Bearer Authentication (JWT):**
-```bash
-# Using JWT token (obtain from your Identity Provider)
-claude mcp add gx-mcp-server-remote --transport http \
-  --header "Authorization: Bearer your-jwt-token-here" \
-  https://your-server.com:8000/mcp/
-```
+### Manual Configuration
 
-### Manual Configuration (Advanced)
+For custom MCP clients, add to your config file:
 
-For custom MCP clients or direct configuration file editing, add these configurations to your MCP client's config file:
-
-#### Local STDIO Configuration
+**STDIO Mode:**
 ```json
 {
   "mcpServers": {
     "gx-mcp-server": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "python", "-m", "gx_mcp_server", "--log-level", "DEBUG"],
-      "env": {}
+      "args": ["run", "python", "-m", "gx_mcp_server"]
     }
   }
 }
 ```
 
-#### Local Docker HTTP Configuration
-```json
-{
-  "mcpServers": {
-    "gx-mcp-server": {
-      "type": "http",
-      "url": "http://localhost:8000/mcp/"
-    }
-  }
-}
-```
-
-#### Remote Docker HTTP Configuration
+**HTTP Mode with Authentication:**
 ```json
 {
   "mcpServers": {
@@ -252,49 +152,18 @@ For custom MCP clients or direct configuration file editing, add these configura
 }
 ```
 
-### Quick Test Example
+### Testing & Management
 
-Once configured, test your MCP server with this minimal example:
-
-**Test Data (CSV):**
-```csv
-id,age,status
-1,25,active
-2,32,active  
-3,19,inactive
-4,45,active
-5,70,active
-```
-
-**Test Prompt:**
-```
-Using gx-mcp-server tools:
-1. Load the CSV data above inline
-2. Create a suite called "age_validation" 
-3. Add an expectation that age values should be between 21 and 65
-4. Run validation and show me which records passed vs failed
-```
-
-**Expected Result:**
-- **Passed:** Records with id=1,2,4 (ages 25,32,45)  
-- **Failed:** Records with id=3,5 (ages 19,70)
-
-> **Note:** This test works regardless of authentication method. If you configured authentication, the MCP client will automatically include the auth headers you specified during setup.
-
-### Managing Multiple Configurations
-
-You can maintain multiple server configurations simultaneously:
-
+**Test the Server:**
 ```bash
-# Add multiple servers
+claude "Load CSV data id,age\n1,25\n2,19\n3,45 and validate ages 21-65, show failed records"
+```
+
+**Manage Multiple Servers:**
+```bash
 claude mcp add gx-local -- uv run python -m gx_mcp_server
 claude mcp add gx-docker --transport http http://localhost:8000/mcp/
-claude mcp add gx-remote --transport http https://prod-server.com:8000/mcp/
-
-# List all servers
 claude mcp list
-
-# Remove a server
 claude mcp remove gx-local
 ```
 
@@ -330,7 +199,7 @@ curl -H "Authorization: Basic $(echo -n 'user:pass' | base64)" \
      http://localhost:8000/mcp/health  
 
 # Test with bearer token
-curl -H "Authorization: Bearer your-jwt-token" \
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
      http://localhost:8000/mcp/health
 ```
 
@@ -385,49 +254,24 @@ uv run python -m gx_mcp_server --http \
 - `--bearer-issuer`: The expected issuer (`iss`) claim in the JWT.
 - `--bearer-audience`: The expected audience (`aud`) claim in the JWT.
 
-### Authentication with MCP Clients
-
-When using authentication with MCP clients like Claude CLI, configure as follows:
-
-**Basic Authentication:**
-```bash
-# For Docker with basic auth
-docker run -d -p 8000:8000 --name gx-mcp-server \
-  -e MCP_SERVER_USER=myuser \
-  -e MCP_SERVER_PASSWORD=mypass \
-  davidf9999/gx-mcp-server:latest
-
-# Configure Claude CLI with auth headers
-claude mcp add gx-mcp-server --transport http \
-  --header "Authorization: Basic $(echo -n 'myuser:mypass' | base64)" \
-  http://localhost:8000/mcp/
-```
-
-**Bearer Authentication:**
-```bash
-# For environments with JWT tokens
-claude mcp add gx-mcp-server --transport http \
-  --header "Authorization: Bearer <your-jwt-token>" \
-  https://your-server.com:8000/mcp/
-```
 
 **Legacy Environment Variables (for custom clients):**
 Some clients may expect these environment variables:
 ```bash
 export MCP_SERVER_URL=http://localhost:8000/mcp/
 export MCP_AUTH_TOKEN="myuser:mypassword" # For basic auth
-export MCP_AUTH_TOKEN="<your_jwt>"        # For bearer auth
+export MCP_AUTH_TOKEN="YOUR_JWT_TOKEN"        # For bearer auth
 ```
 
-## Configuring Maximum CSV File Size
+## Configuration
 
-Default limit is **50 MB**. Override via environment variable:
+### CSV File Size Limit
+Default: **50 MB**. Override via environment variable:
 ```bash
 export MCP_CSV_SIZE_LIMIT_MB=200  # 1–1024 MB allowed
-just serve
 ```
 
-## Warehouse Connectors
+### Warehouse Connectors
 
 Install extras:
 ```bash
@@ -442,9 +286,8 @@ load_dataset("bigquery://project/dataset/table")
 ```
 `load_dataset` automatically detects these prefixes and delegates to the appropriate connector.
 
-## Metrics and Tracing
-
-- Prometheus metrics endpoint: `http://localhost:9090/metrics`
+### Metrics and Tracing
+- Prometheus metrics: `http://localhost:9090/metrics`
 - OpenTelemetry: `uv run python -m gx_mcp_server --http --trace`
 
 ## Docker
@@ -496,24 +339,8 @@ just docker-test
 just docker-run-examples
 ```
 
-### MCP Client Configuration for Docker
-
-Once your Docker container is running, configure your MCP client:
-
-```bash
-# Add Docker server to Claude CLI
-claude mcp add gx-mcp-server --transport http http://localhost:8000/mcp/
-
-# Test the connection
-claude mcp list
-
-# Test with a simple prompt
-claude "Using gx-mcp-server, load this CSV and validate ages are 21-65: id,age\n1,25\n2,19\n3,45"
-```
 
 ## Development
-
-### Quickstart
 
 ```bash
 just install
@@ -521,19 +348,16 @@ cp .env.example .env  # optional: add your OpenAI API key
 just run-examples
 ```
 
-
-## Telemetry
-
-Great Expectations sends anonymous usage data to `posthog.greatexpectations.io` by default. Disable:
+### Telemetry
+Great Expectations sends anonymous usage data by default. Disable:
 ```bash
 export GX_ANALYTICS_ENABLED=false
 ```
 
-## Current Limitations
-
-- Stores last 100 datasets / results only
-- Concurrency is **in-process** (`asyncio`) – no external queue
-- Expect API evolution while the project stabilises
+### Current Limitations
+- Stores last 100 datasets/results only
+- In-process asyncio concurrency (no external queue)
+- API may evolve as project stabilizes
 
 ## Security
 
