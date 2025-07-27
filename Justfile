@@ -64,10 +64,15 @@ docker-all: docker-build-dev docker-test docker-run-examples
 # Usage: just release patch|minor|major
 release level:
     @echo "Running {{level}} release process..."
+    @if [ "$(git branch --show-current)" != "dev" ]; then \
+        echo "ERROR: You must be on the 'dev' branch to run a release."; \
+        exit 1; \
+    fi
     # 1. Pre-flight checks
     just ci
     just run-examples
     just docker-all
+
 
     # 2. Merge dev to main
     git checkout main
