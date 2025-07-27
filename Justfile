@@ -61,22 +61,13 @@ docker-run-examples:
 
 docker-all: docker-build-dev docker-test docker-run-examples
 
-#–– smoke‐test your prod image ––
+#–– smoke‑test your prod image ––
 docker-smoke-test:
     @echo "🔨 Building prod Docker image…"
-    docker build -t gx-mcp-server:prod-test .
-    @echo "🚦 Launching smoke‐test container…"
-    container=$$(docker run -d -p 8000:8000 gx-mcp-server:prod-test); \
-      sleep 5; \
-      echo "🌐 Probing /metrics…"; \
-      if ! curl -fsS http://localhost:8000/metrics; then \
-        echo "** Smoke‐test failed — logs follow **"; \
-        docker logs $$container; \
-        docker rm -f $$container; \
-        exit 1; \
-      fi; \
-      docker rm -f $$container; \
-      echo "✅ Prod image smoke‐test OK"
+    # Force legacy builder to skip Buildx metadata error
+    DOCKER_BUILDKIT=0 docker build -t gx-mcp-server:prod-test .
+
+    ./scripts/smoke-test.sh
 
 release-checks:
     @echo "🔍 Running release pre-flight checks…"
