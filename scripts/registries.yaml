@@ -1,0 +1,11 @@
+- name: MCP Servers (GitHub)
+  repo: modelcontextprotocol/servers
+  file: README.md
+  marker: '^## Community$'
+  entry: '- **gx-mcp-server**: https://github.com/davidf9999/gx-mcp-server, Docker: `davidf9999/gx-mcp-server:latest`'
+# - name: MCP Registry (GitHub)
+#   repo: modelcontextprotocol/registry
+#   file: src/seed-data.json
+#   marker: '"entries": \['
+#   entry: '  {{ "name": "gx-mcp-server", "url": "https://github.com/davidf9999/gx-mcp-server", "docker": "davidf9999/gx-mcp-server:latest" }},'
+# …add as many as you like…
