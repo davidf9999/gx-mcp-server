@@ -103,3 +103,6 @@ release level:
     git push origin dev
 
     @echo "🎉 Released gx-mcp-server {{level}}"
+
+deploy:
+    npx @smithery/cli deploy
