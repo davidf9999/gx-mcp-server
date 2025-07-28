@@ -104,5 +104,4 @@ release level:
 
     @echo "🎉 Released gx-mcp-server {{level}}"
 
-deploy:
-    npx @smithery/cli deploy
+
