@@ -12,6 +12,9 @@ license = { file = "LICENSE" }
 authors = [
     { name = "David Front", email = "dfront@gmail.com" }
 ]
+maintainers = [
+  { name = "David Front", email = "dfront@gmail.com" },
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
