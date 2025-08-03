@@ -53,6 +53,7 @@ class BearerAuthProvider(OAuthProvider):
             issuer_url = "https://fastmcp.example.com"
 
         super().__init__(
+            base_url="https://fastmcp.example.com",
             issuer_url=issuer_url,
             client_registration_options=ClientRegistrationOptions(enabled=False),
             revocation_options=RevocationOptions(enabled=False),
