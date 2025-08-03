@@ -54,6 +54,7 @@ dev = [
     "fastapi",
     "colorama",
     "bump-my-version",
+    "types-Authlib",
 ]
 snowflake = ["snowflake-connector-python"]
 bigquery  = ["google-cloud-bigquery"]
