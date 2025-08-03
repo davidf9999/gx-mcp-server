@@ -253,7 +253,7 @@ async def run_http(
 
     auth_provider = None
     if bearer_public_key_file or bearer_jwks:
-        from fastmcp.server.auth.providers.bearer import BearerAuthProvider
+        from gx_mcp_server.bearer_auth import BearerAuthProvider
 
         public_key = None
         if bearer_public_key_file:
