@@ -1,16 +1,17 @@
----
+# smithery.yaml  – container-based HTTP server, no user config needed
 runtime: container
 image: "davidf9999/gx-mcp-server:latest"
+
 startCommand:
-  type: http
-  port: 8000
-configSchema:
-  type: object
-  properties: {}
+  type: http          # use Streamable-HTTP transport
+  port: 8000          # FastAPI listens here inside the image
+  configSchema:       # empty schema ⇒ no API keys required
+    type: object
+    description: "No configuration necessary"
+  exampleConfig: {}
+
 metadata:
-  name: gx-mcp-server
-  description: "Expose Great Expectations data-quality checks as MCP tools."
+  name: "gx-mcp-server"
+  description: "Expose Great Expectations data-quality checks as MCP tools"
   homepage: "https://github.com/davidf9999/gx-mcp-server"
-  tags:
-    - data-quality
-    - great-expectations
+  tags: ["data-quality", "great-expectations"]
