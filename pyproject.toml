@@ -25,11 +25,12 @@ classifiers = [
 requires-python = ">=3.11"
 keywords = ["data validation", "great-expectations", "mcp"]
 dependencies = [
-    "fastmcp>=2.11.0",
+    "fastmcp>=2.13",
     "pandas>=1.5",
     "great-expectations>=0.17",
     "pydantic>=1",
     "requests>=2.28",
+    "scipy>=1.13",	
     "slowapi>=0.1.9",
     # Optional streaming support
     "polars>=0.20",
