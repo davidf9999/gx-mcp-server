@@ -73,8 +73,8 @@ Examples:
     parser.add_argument(
         "--log-level",
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        default="INFO",
-        help="Logging level (default: INFO)",
+        default=os.getenv("LOG_LEVEL", "INFO"),
+        help="Logging level (default: INFO or from LOG_LEVEL env var)",
     )
 
     parser.add_argument(
