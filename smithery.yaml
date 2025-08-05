@@ -2,9 +2,8 @@
 runtime: container
 image: "davidf9999/gx-mcp-server:latest"
 startCommand:
-  type: stdio
-  command: python
-  args: ["-m", "gx_mcp_server"]
+  type: http
+  port: 8000
 configSchema:
   type: object
   properties: {}
