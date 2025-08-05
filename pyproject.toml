@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gx-mcp-server"
-version = "1.0.10"
+version = "1.0.11"
 description = "Expose Great Expectations data-quality checks via MCP"
 readme = "README.md"
 long_description_content_type = "text/markdown"
