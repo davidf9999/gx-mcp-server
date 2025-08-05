@@ -1,3 +1,4 @@
+---
 runtime: container
 image: "davidf9999/gx-mcp-server:latest"
 startCommand:
