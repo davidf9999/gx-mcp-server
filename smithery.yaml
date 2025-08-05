@@ -8,3 +8,10 @@ startCommand:
 configSchema:
   type: object
   properties: {}
+metadata:
+  name: gx-mcp-server
+  description: "Expose Great Expectations data-quality checks as MCP tools."
+  homepage: "https://github.com/davidf9999/gx-mcp-server"
+  tags:
+    - data-quality
+    - great-expectations
