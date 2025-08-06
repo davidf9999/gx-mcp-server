@@ -62,7 +62,18 @@ docker-run-examples:
 docker-all: docker-build-dev docker-test docker-run-examples
 
 #–– smoke‑test your prod image ––
-docker-smoke-test:
+check-port-8000:
+    @echo "🔍 Checking if port 8000 is available…"
+    @if lsof -ti:8000 >/dev/null 2>&1; then \
+        echo "❌ ERROR: Port 8000 is already in use. Please stop any running servers:"; \
+        echo "   ps aux | grep gx_mcp_server"; \
+        echo "   kill <PID>"; \
+        exit 1; \
+    else \
+        echo "✅ Port 8000 is available"; \
+    fi
+
+docker-smoke-test: check-port-8000
     @echo "🔨 Building prod Docker image…"
     # Force legacy builder to skip Buildx metadata error
     DOCKER_BUILDKIT=0 docker build -t gx-mcp-server:prod-test .
