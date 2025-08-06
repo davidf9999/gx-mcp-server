@@ -18,6 +18,8 @@ install: ensure_uv
     {{uv_cmd}} pip install -e .[dev]
 
 test: ensure_uv
+    {{uv_cmd}} sync
+    {{uv_cmd}} pip install -e .[dev]
     {{uv_cmd}} run pytest
 
 lint: ensure_uv
