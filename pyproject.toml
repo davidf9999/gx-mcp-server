@@ -72,7 +72,7 @@ Issues = "https://github.com/dfront/gx-mcp-server/issues"
 Documentation = "https://github.com/dfront/gx-mcp-server#readme"
 
 [tool.hatch.build.targets.wheel]
-packages = ["gx_mcp_server", "src/gx_mcp_stdio", "src/gx_mcp_simple"]
+packages = ["gx_mcp_server", "src/gx_mcp_stdio", "src/gx_mcp_simple", "src/gx_mcp_minimal"]
 
 [tool.black]
 line-length = 88

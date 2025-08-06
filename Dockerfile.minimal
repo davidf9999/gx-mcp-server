@@ -1,0 +1,12 @@
+FROM python:3.11-slim
+WORKDIR /app
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN groupadd -r app && useradd --no-log-init -r -m -g app app
+RUN pip install uv
+COPY pyproject-minimal.toml pyproject.toml
+COPY src/gx_mcp_minimal/ gx_mcp_minimal/
+RUN chown -R app:app /app
+USER app
+RUN uv sync
+RUN uv pip install -e .
+CMD ["uv", "run", "python", "-m", "gx_mcp_minimal"]
