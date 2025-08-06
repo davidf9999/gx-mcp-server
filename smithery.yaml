@@ -1,10 +1,9 @@
-# smithery.yaml  – container-based HTTP server, no user config needed
+# smithery.yaml  – container-based STDIO server, no user config needed
 runtime: container
 image: "davidf9999/gx-mcp-server:latest"
 
 startCommand:
-  type: http          # use Streamable-HTTP transport
-  port: 8000          # FastAPI listens here inside the image
+  type: stdio         # use STDIO transport (like calculator)
   configSchema:       # empty schema ⇒ no API keys required
     type: object
     description: "No configuration necessary"
