@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gx-mcp-server"
-version = "2.0.2"
+version = "2.0.3"
 description = "Expose Great Expectations data-quality checks via MCP"
 readme = "README.md"
 long_description_content_type = "text/markdown"
@@ -25,15 +25,14 @@ classifiers = [
 requires-python = ">=3.11"
 keywords = ["data validation", "great-expectations", "mcp"]
 dependencies = [
-    "mcp>=1.4.1",  # Vanilla MCP for STDIO transport
+    "fastmcp>=2.10.0",
     "pandas>=1.5",
     "great-expectations>=0.17",
     "pydantic>=1",
     "requests>=2.28",
-    "scipy>=1.13",
-    # Keep FastMCP optional for HTTP mode
-    "fastmcp>=2.10.0",
+    "scipy>=1.13",	
     "slowapi>=0.1.9",
+    # Optional streaming support
     "polars>=0.20",
     "prometheus-fastapi-instrumentator>=7",
     "opentelemetry-sdk>=1",
@@ -62,8 +61,7 @@ snowflake = ["snowflake-connector-python"]
 bigquery  = ["google-cloud-bigquery"]
 
 [project.scripts]
-gx-mcp-server = "gx_mcp_stdio.server:main"
-gx-mcp-server-http = "gx_mcp_server.__main__:main"
+gx-mcp-server = "gx_mcp_server.__main__:main"
 
 [project.urls]
 Homepage = "https://github.com/dfront/gx-mcp-server"
@@ -72,7 +70,7 @@ Issues = "https://github.com/dfront/gx-mcp-server/issues"
 Documentation = "https://github.com/dfront/gx-mcp-server#readme"
 
 [tool.hatch.build.targets.wheel]
-packages = ["gx_mcp_server", "src/gx_mcp_stdio", "src/gx_mcp_simple", "src/gx_mcp_minimal", "src/gx_mcp_instant"]
+packages = ["gx_mcp_server"]
 
 [tool.black]
 line-length = 88
