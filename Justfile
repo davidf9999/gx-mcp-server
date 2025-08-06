@@ -75,7 +75,7 @@ check-port-8000:
         echo "✅ Port 8000 is available"; \
     fi
 
-docker-smoke-test: check-port-8000
+docker-smoke-test:
     @echo "🔨 Building prod Docker image…"
     # Force legacy builder to skip Buildx metadata error
     DOCKER_BUILDKIT=0 docker build -t gx-mcp-server:prod-test .
