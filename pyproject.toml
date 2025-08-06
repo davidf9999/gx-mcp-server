@@ -90,6 +90,8 @@ warn_unused_configs = true
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
 disallow_untyped_calls = false
+# Ignore missing imports for third-party libraries without stubs
+ignore_missing_imports = true
 # Exclude examples from type checking entirely
 exclude = [
     "examples/.*"
