@@ -10,4 +10,4 @@ RUN uv sync
 COPY --chown=app:app . .
 ARG WITH_DEV=false
 RUN if [ "$WITH_DEV" = "true" ]; then         uv pip install -e ".[dev]";     else         uv pip install -e .;     fi
-CMD ["uv", "run", "python", "-m", "gx_mcp_minimal"]
+CMD ["uv", "run", "python", "-m", "gx_mcp_instant"]
