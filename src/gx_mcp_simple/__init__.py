@@ -1,1 +1,0 @@
-# Simple GX MCP Server
