@@ -27,16 +27,8 @@ MCP is an open JSON‑RPC standard for AI agents to discover and call external t
 
 ## 4. Architecture Overview
 
+![gx-mcp-server architecture overview](gx-mcp-server-architecture.png "gx-mcp-server architecture overview")
 
-```mermaid
-graph LR
-  Agent[AI Agent] -->|MCP/HTTP| Server[gx-mcp-server]
-  Server --> GE[Great Expectations]
-  Server --> Data[CSV / Snowflake / BigQuery]
-  Server --> Store[In-memory / SQLite]
-  Server --> Auth[Basic / JWT]
-  Server --> Obs[Prometheus / OTEL]
-```
 
 - **Protocol Handler**: FastMCP over HTTP, STDIO, Inspector.
 - **HTTP Layer**: FastAPI with CORS, origin checks, rate limiting.
