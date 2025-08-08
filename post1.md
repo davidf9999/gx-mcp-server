@@ -1,4 +1,4 @@
-# Bridging AI and Data Quality: How I Built gx-mcp-server
+# Bridging Data Quality and Autonomous AI Agents: Introducing gx-mcp-server
 
 **Author’s Note**
 I’m David Front - coding since the 1980s, from scientific computing to global web services. Today, I’m happy to shift focus to be coding by coordinating the work of AI agents. gx-mcp-server is my first open-source contribution.
@@ -7,7 +7,7 @@ I’m David Front - coding since the 1980s, from scientific computing to global 
 
 ## 1. Introduction
 
-AI agents excel at language but lack built‑in data validation. Great Expectations (GE) provides battle‑tested data-quality checks, but typically via scripts or batch jobs. **gx-mcp-server** changes that by exposing GE as an MCP‑compliant service, letting agents load data, define rules, run validations, and interpret results programmatically.
+AI agents excel at language but lack built‑in data validation. **Great Expectations (GE)** python package provides battle‑tested data-quality checks, but typically via scripts or batch jobs. **gx-mcp-server** changes that by exposing GE as an MCP‑compliant service, letting agents load data, define rules, run validations, and interpret results programmatically.
 
 You’ll learn:
 
@@ -27,14 +27,20 @@ MCP is an open JSON‑RPC standard for AI agents to discover and call external t
 
 ## 4. Architecture Overview
 
-![gx-mcp-server architecture overview](gx-mcp-server-architecture.png "gx-mcp-server architecture overview")
+![gx-mcp-server architecture overview](https://raw.githubusercontent.com/davidf9999/gx-mcp-server/dev/gx-mcp-server-architecture.png
+ "gx-mcp-server architecture overview")
 
 
-- **Protocol Handler**: FastMCP over HTTP, STDIO, Inspector.
-- **HTTP Layer**: FastAPI with CORS, origin checks, rate limiting.
-- **Core**: GE suites, profiling, checkpoints.
-- **Storage & Security**: In-memory or SQLite; Basic/JWT auth.
-- **Observability**: `/metrics` for Prometheus; OTEL tracing.
+Below is a breakdown of the components and data flow:
+
+- **AI Agent**: Initiates JSON‑RPC calls over MCP/HTTP, sending requests like `load_dataset`, `create_suite`, etc.
+- **Protocol Handler (FastMCP)**: Parses incoming MCP payloads and routes them to the appropriate tool implementation.
+- **HTTP Layer (FastAPI)**: Exposes `/mcp/` endpoints, enforces CORS, origin checks, and rate limits.
+- **Core (gx-mcp-server)**: Translates MCP calls into Great Expectations API operations—loading data sources, profiling, running checkpoints.
+- **Great Expectations**: Executes the actual validation logic, returns structured results.
+- **Storage**: In-memory or SQLite-backed handles for datasets and validation runs.
+- **Security (Auth)**: Basic Auth or JWT/Bearer token validation layer.
+- **Observability**: Prometheus metrics (`/metrics`) and OpenTelemetry spans for tracing.
 
 ## 5. Key Features
 
@@ -49,12 +55,6 @@ Each choice balances ease‑of‑use with production readiness.
 
 ## 6. Quick Start
 
-**Install**
-
-```bash
-pip install gx-mcp-server
-```
-
 **Docker**
 
 ```bash
@@ -67,8 +67,6 @@ docker run -d -p 8000:8000 --name gx-mcp-server davidf9999/gx-mcp-server:latest
 curl http://localhost:8000/mcp/health
 # {"status":"ok"}
 ```
-
-Point your agent at `http://localhost:8000/mcp/`.
 
 ## 7. Walkthrough & Demo Script
 
@@ -146,8 +144,9 @@ Below are **two concise MCP exchanges** so you can visualize the round‑trip:
 Once the server is running you can let **Claude** do the same work:
 
 ```bash
-# register the server once
+# register the server once / Point your agent to `http://localhost:8000/mcp/`:
 claude mcp add gx http://localhost:8000/mcp/
+# After this one‑liner, any Claude conversation can invoke gx‑mcp‑server tools automatically.
 
 # natural‑language request • Claude assembles the MCP calls for you
 claude "Load CSV id,age
@@ -181,21 +180,23 @@ Claude will send the `load_dataset`, create an expectation on `age`, run a check
 - **REST APIs**: load JSON from endpoints for validation (e.g., `load_dataset('http://api/data')`).
 - **Predictive Quality Monitoring**: use historical metrics to detect drift and trigger alerts.
 - **Auto‑Generated Expectations**: GE’s profiler offers basic generation; next up: AI‑driven rule suggestions.
-- **Kubeflow Hooks**: integrate as pipeline steps or Argo tasks in MLOps workflows.\*
+- **Kubeflow Hooks**: integrate as pipeline steps or Argo tasks in MLOps workflows.
 
 ## 10. Conclusion & Call to Action
 
 gx‑mcp‑server bridges enterprise‑grade data validation and autonomous AI agents. By wrapping Great Expectations in an MCP‑compliant service, you can embed data‑quality checks directly inside your LLM workflows—no bespoke glue code required.
 
-**Ready to try it?**
+**Connect with me:**\
+• LinkedIn: [https://www.linkedin.com/in/david--front/](https://www.linkedin.com/in/david--front/)\
+• GitHub: [https://github.com/davidf9999](https://github.com/davidf9999)\
+• Email: [dfront@gmail.com](mailto\:dfront@gmail.com)
 
-```bash
-docker pull davidf9999/gx-mcp-server:latest
-python scripts/gx_request_response_demo.py   # end‑to‑end test
-```
+**Ready to try it?**
 
 • GitHub → [https://github.com/davidf9999/gx-mcp-server](https://github.com/davidf9999/gx-mcp-server)\
 • PyPI → `pip install gx-mcp-server`
+• Docker → `docker run -d -p 8000:8000 --name gx-mcp-server davidf9999
 
 🌟 Star the repo, open issues, or submit PRs—community feedback drives the roadmap!
 
+> 💬 **Questions?** Leave a comment below or reach out on LinkedIn—I’d love to hear your feedback!
