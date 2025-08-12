@@ -36,9 +36,16 @@ Large Language Model (LLM) agents often need to interact with and validate data.
 
 **Docker (Recommended):**
 ```bash
-docker run -d -p 8000:8000 --name gx-mcp-server davidf9999/gx-mcp-server:latest
+# Run in default stdio mode
+docker run --rm -i davidf9999/gx-mcp-server:latest
+
+# Run in http mode
+docker run -d -p 8000:8000 --name gx-mcp-server -e MCP_MODE=http davidf9999/gx-mcp-server:latest
 claude mcp add gx-mcp-server --transport http http://localhost:8000/mcp/
-claude "Load CSV data id,age\n1,25\n2,19\n3,45 and validate ages 21-65, show failed records"
+claude "Load CSV data id,age
+1,25
+2,19
+3,45 and validate ages 21-65, show failed records"
 ```
 
 **Local Development:**
@@ -97,7 +104,37 @@ Configure any MCP-compatible client (Claude Desktop, Claude CLI, custom applicat
 claude mcp add gx-mcp-server-local -- uv run python -m gx_mcp_server
 ```
 
+**Claude CLI with Docker (stdio)**
+```bash
+claude mcp add gx-stdio \
+  -- docker run --rm -i \
+  -e MCP_MODE=stdio \
+  -e PYTHONUNBUFFERED=1 \
+ gx-mcp-server
+```
+
+**cline with Docker (stdio)**
+```json
+{
+  "mcpServers": {
+    "gx": {
+      "command": "docker",
+      "args": [
+        "run","--rm","-i",
+        "--network","none",                 // optional isolation
+        "-e","MCP_MODE=stdio",             // your new switch
+        "-e","PYTHONUNBUFFERED=1",         // avoid buffering
+        "davidf9999/gx-mcp-server:latest"
+      ],
+      "alwaysAllow": ["*"],
+      "timeout": 60
+    }
+  }
+}
+```
+
 **Docker without Authentication:**
+```
 ```bash
 docker run -d -p 8000:8000 --name gx-mcp-server davidf9999/gx-mcp-server:latest
 claude mcp add gx-mcp-server --transport http http://localhost:8000/mcp/
@@ -294,20 +331,25 @@ load_dataset("bigquery://project/dataset/table")
 
 ### Using Pre-built Images (Recommended)
 
-The easiest way to run `gx-mcp-server` is using the official Docker image:
+The easiest way to run `gx-mcp-server` is using the official Docker image. By default, the container runs in `stdio` mode. You can switch to `http` mode by setting the `MCP_MODE` environment variable to `http`.
 
 ```bash
-# Run latest stable version
-docker run -d -p 8000:8000 --name gx-mcp-server davidf9999/gx-mcp-server:latest
+# Run latest stable version in stdio mode
+docker run --rm -i davidf9999/gx-mcp-server:latest
+
+# Run latest stable version in http mode
+docker run -d -p 8000:8000 --name gx-mcp-server -e MCP_MODE=http davidf9999/gx-mcp-server:latest
 
 # Run with authentication
 docker run -d -p 8000:8000 --name gx-mcp-server \
+  -e MCP_MODE=http \
   -e MCP_SERVER_USER=myuser \
   -e MCP_SERVER_PASSWORD=mypass \
   davidf9999/gx-mcp-server:latest
 
 # Run with file access (for loading local CSV files)
 docker run -d -p 8000:8000 --name gx-mcp-server \
+  -e MCP_MODE=http \
   -v "$(pwd)/data:/app/data" \
   davidf9999/gx-mcp-server:latest
 ```

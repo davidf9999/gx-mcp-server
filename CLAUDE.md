@@ -17,6 +17,11 @@ uv run pre-commit install
 ```
 
 ### Running the Server
+
+The server can be run in different modes using the `--transport` argument. The default transport is `stdio`.
+
+When using Docker, the transport can be controlled with the `MCP_MODE` environment variable, which defaults to `stdio`.
+
 ```bash
 # STDIO mode (for AI clients like Claude Desktop)
 uv run python -m gx_mcp_server
