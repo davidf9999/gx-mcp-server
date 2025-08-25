@@ -9,13 +9,13 @@ import httpx
 from authlib.jose import JsonWebToken, jwk
 from authlib.jose.errors import JoseError
 from fastmcp.server.auth.auth import (
+    AccessToken,
     ClientRegistrationOptions,
     OAuthProvider,
     RevocationOptions,
 )
 from fastmcp.utilities.logging import get_logger
 from mcp.server.auth.provider import (
-    AccessToken,
     AuthorizationCode,
     OAuthToken,
     RefreshToken,
