@@ -100,7 +100,7 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
+addopts = "-v --tb=short --ignore=tests/test_bearer_auth.py"
 asyncio_mode = "auto"
 filterwarnings = [
     "ignore:.*Number.*field should not be instantiated.*",

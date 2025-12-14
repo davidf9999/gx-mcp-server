@@ -148,9 +148,9 @@ Examples:
     )
 
     parser.add_argument(
-        "--disable-analytics",
+        "--enable-analytics",
         action="store_true",
-        help="Disable Great Expectations analytics",
+        help="Enable Great Expectations analytics (default: disabled)",
     )
 
     return parser.parse_args()
@@ -409,7 +409,7 @@ def main() -> None:
 
     storage.configure_storage_backend(args.storage_backend)
 
-    if args.disable_analytics:
+    if not args.enable_analytics:
         os.environ["GX_ANALYTICS_ENABLED"] = "false"
 
     try:
